@@ -1,6 +1,6 @@
 {
   "version": "0.2",
-  "language": "en",
+  "language": "it",
   "useGitignore": true,
   "import": [
     "@cspell/dict-en_us/cspell-ext.json",
