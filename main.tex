@@ -18,7 +18,7 @@
 % Letter
 \usepackage[utf8]{inputenc}
 % Language
-\usepackage[english]{babel}
+\usepackage[italian]{babel}
 % PDF/A
 \usepackage[a-1b]{pdfx}
 % Image
@@ -50,7 +50,7 @@
   \clearpage
   \pagestyle{plain}
 
-  % Table of Contents
+  % Table of Cfntents
   \frontmatter
   \pagenumbering{Roman}
   \tableofcontents
@@ -74,7 +74,11 @@
   \input{etc/abstract.tex}
 
   % Chapters
-  \input{chapters/examples.tex}
+  \input{chapters/1-Introduzione.tex}
+  \input{chapters/2-Fondamenti-Teorici.tex}
+  \input{chapters/3-Metodologia-Sviluppo.tex}
+  \input{chapters/4-Discussione.tex}
+  \input{chapters/5-Risultati.tex}
 
   % Conclusions
   \input{etc/conclusions.tex}
@@ -82,13 +86,13 @@
   \endgroup
 
   % Bibliography
-  \addcontentsline{toc}{chapter}{Bibliography}
+  \addcontentsline{toc}{chapter}{Bibliografia}
   % Alphabetical order of authors
   \bibliographystyle{plain}
   \bibliography{bibliography.bib}
 
   % Attachments
-  \titleformat{\chapter} {\normalfont\Huge\bfseries}{Appendix \thechapter}{1em}{}
+  \titleformat{\chapter} {\normalfont\Huge\bfseries}{Appendice \thechapter}{1em}{}
   \appendix
-  \input{attachments/attachment.tex}
+  \input{attachments/source.tex}
 \end{document}
