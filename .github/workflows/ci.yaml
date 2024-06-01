@@ -67,4 +67,4 @@ jobs:
           title: ${{ startsWith(github.ref , 'refs/tags/v') && github.ref_name || 'Nightly' }}
           files: |
             LICENSE
-            surname_name_computer_science_2023_2024.pdf
+            miazzo_luigi_computer_science_2023_2024.pdf
