@@ -1,6 +1,6 @@
 {
   "version": "0.2",
-  "language": "it",
+  "language": ["en", "it"],
   "useGitignore": true,
   "import": [
     "@cspell/dict-en_us/cspell-ext.json",
@@ -9,13 +9,27 @@
     "@cspell/dict-markdown/cspell-ext.json",
     "@cspell/dict-npm/cspell-ext.json"
   ],
-  "ignorePaths": ["**/build/", "**/node_modules/", "**/package-lock.json"],
+  "ignorePaths": [
+    "**/build/",
+    "**/node_modules/",
+    "**/package-lock.json",
+    "*.eps",
+    "*.bib"
+  ],
   "words": [
     "booktitle",
     "howpublished",
     "latexmk",
     "nonstopmode",
     "outdir",
-    "postbuild"
+    "postbuild",
+    "Luigi",
+    "Michele",
+    "Miazzo",
+    "Segata",
+    "CoopeRIS",
+    "Cuda",
+    "Amdahl",
+    "Plexe"
   ]
 }
