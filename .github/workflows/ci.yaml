@@ -40,6 +40,11 @@ jobs:
           packages: >-
             scheme-full
 
+      - name: Install ghostscript to build eps files
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ghostscript
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
