@@ -2,4 +2,23 @@
 \label{cha:abtract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-\lipsum[1]
+Il parallelismo è il concetto più rilevante nello sviluppo di software
+efficiente e scalabile, soprattutto nei casi in cui questo ha la necessità di processare
+una grande mole di dati e richieda un'elevata potenza di calcolo. In questo
+contesto, il calcolo parallelo offre la possibilità di sfruttare al meglio le risorse
+hardware disponibili, riducendo i tempi di esecuzione e migliorando le
+prestazioni, tuttavia complicando in alcuni casi la portabilità e la manutenibilità
+del codice. Questo elaborato si propone di analizzare tre diversi framework di
+programmazione parallela confrontando le principali caratteristiche che li
+contraddistinguono, nell'ottica di valutarne l'efficacia, la versatilità, e ove applicabile
+la difficoltà d'integrazione. I framework presi in considerazione sono: parallelizzazione
+su CPU tramite la libreria \textit{libpthread} e su GPU tramite le librerie
+\textit{CUDA} e \textit{OpenCL}. Per questo scopo, è stata eseguita l'integrazione
+di ciascuno di questi paradigmi nella libreria \textit{CoopeRIS}, framework di
+simulazione per le Reconfigurable Intelligent Surfaces, al fine di valutarne l'impatto
+sulle prestazioni delle simulazioni. I risultati ottenuti da questo studio
+dimostrano pienamente l'efficacia del calcolo parallelo, in particolare su GPU,
+nel ridurre i tempi di esecuzione delle citate simulazioni, essenzialmente indicando
+un miglioramento pressoché lineare nella velocità di esecuzione al crescere del numero
+di thread o core utilizzati in riferimento all'implementazione su CPU, e un
+incremento di quasi due ordini di grandezza tramite le implementazioni su GPU.

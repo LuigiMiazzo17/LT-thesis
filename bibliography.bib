@@ -1,47 +1,67 @@
-% Website
-% Required fields: 'title' | 'author' | 'howpublished' | 'note'
-% Optional fields: 'month' | 'year'
-@misc{misc,
-  title = {{Title}},
-  author = {{Name Surname, Name Surname and Name Surname}},
-  howpublished = {\url{https://www.google.com}},
-  note = {{Accessed 31/01/2000}}
+
+@inproceedings{sumo,
+  title = {Microscopic Traffic Simulation using SUMO},
+  author = {Pablo Alvarez Lopez and Michael Behrisch and Laura Bieker-Walz and Jakob Erdmann and Yun-Pang Fl{\"o}tter{\"o}d and Robert Hilbrich and Leonhard L{\"u}cken and Johannes Rummel and Peter Wagner and Evamarie Wie{\ss}ner},
+  publisher = {IEEE},
+  booktitle = {The 21st IEEE International Conference on Intelligent Transportation Systems},
+  year = 2018,
+  journal = {IEEE Intelligent Transportation Systems Conference (ITSC)},
+  keywords = {traffic simulation, modelling, optimization},
+  url = {https://elib.dlr.de/124092/},
+ }
+
+@Inbook{omnetpp,
+  author="Varga, Andras",
+  editor="Wehrle, Klaus
+  and G{\"u}ne{\c{s}}, Mesut
+  and Gross, James",
+  title="OMNeT++",
+  bookTitle="Modeling and Tools for Network Simulation",
+  year="2010",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="35--59",
+  abstract="OMNeT++ (www.omnetpp.org) is an extensible, modular, component-based C++ simulation library and framework which also includes an integrated development and a graphical runtime environment. Domain-specific functionality (support for simulation of communication networks, queuing networks, performance evaluation, etc.) is provided by model frameworks, developed as independent projects. There are extensions for real-time simulation, network emulation, support for alternative programming languages (Java, C{\#}), database integration, SystemC integration, HLA and several other functions.",
+  isbn="978-3-642-12331-3",
+  doi="10.1007/978-3-642-12331-3_3",
+  url="https://doi.org/10.1007/978-3-642-12331-3_3"
 }
 
-
-% Book
-% Required fields: 'author' or 'editor' | 'title' | 'publisher' | 'year'.
-% Optional fields: 'volume' or 'number' | 'series' | 'address' | 'edition' | 'month' | 'note'
-@book{book,
-  author = {{Name Surname, Name Surname and Name Surname}},
-  title = {{Title}},
-  publisher = {{University of Trento}},
-  year = 1994,
-  edition = 2
+@article{veins,
+  author = {{Christoph Sommer, Reinhard German, Falko Dressler}},
+  title = {{Bidirectionally Coupled Network and Road Traffic Simulation for Improved IVC Analysis}},
+  journal = {{IEEE Transactions on Mobile Computing (TMC)}},
+  volume = 10,
+  number = 1,
+  pages = {3-15},
+  year = 2011
 }
 
-% Conference
-% Required fields: 'author' | 'title' | 'booktitle' | 'year'
-% Optional fields: 'editor' | 'volume' or 'number' | 'series' | 'pages' | 'address' | 'month' | 'organization' | 'publisher' | 'note'
-@conference{conference,
-  author = {{Name Surname, Name Surname and Name Surname}},
-  title = {{Title}},
-  booktitle = {{University of Trento}},
-  address = {{Trento | ITA}},
-  year = 2005,
-  month = jun,
-  pages = {886-893}
+@article{plexe,
+  author = {{Segata, Michele and Lo Cigno, Renato and Hardes, Tobias and Heinovski, Julian and Schettler, Max and Bloessl, Bastian and Sommer, Christoph and Dressler, Falko}},
+  doi = {{10.1109/TMC.2022.3154643}},
+  title = {{Multi-Technology Cooperative Driving: An Analysis Based on PLEXE}},
+  pages = {{4792--4806}},
+  journal = {{IEEE Transactions on Mobile Computing}},
+  issn = {{1536-1233}},
+  publisher = {{IEEE}},
+  month = 8,
+  number = 8,
+  volume = 22,
+  year = 2023,
 }
 
-% Article
-% Required fields: 'author' | 'title' | 'journal' | 'year'
-% Optional fields: 'volume' | 'number' | 'pages' | 'month' | 'note'
-@article{article,
-  author = {{Name Surname, Name Surname and Name Surname}},
-  title = {{Title}},
-  journal = {{University of Trento}},
-  volume = 52,
-  number = 4,
-  pages = {1289-1306},
-  year = 2006
+@article{cooperis,
+title = {CoopeRIS: A framework for the simulation of reconfigurable intelligent surfaces in cooperative driving environments},
+journal = {Computer Networks},
+volume = {248},
+pages = {110443},
+year = {2024},
+issn = {1389-1286},
+doi = {https://doi.org/10.1016/j.comnet.2024.110443},
+url = {https://www.sciencedirect.com/science/article/pii/S1389128624002755},
+author = {Michele Segata and Paolo Casari and Marios Lestas and Alexandros Papadopoulos and Dimitrios Tyrovolas and Taqwa Saeed and George Karagiannidis and Christos Liaskos},
+keywords = {Reconfigurable intelligent surfaces, Cooperative driving, Discrete event simulation},
+}
+
 }

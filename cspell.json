@@ -29,7 +29,10 @@
     "Segata",
     "CoopeRIS",
     "Cuda",
+    "libpthread",
     "Amdahl",
-    "Plexe"
+    "Plexe",
+    "efficientamento",
+    "beamforming"
   ]
 }
