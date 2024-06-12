@@ -1,31 +1,188 @@
 \chapter{Fondamenti Teorici}
 \label{ch:fondamenti}
 
-\section{Limiti teorici}
-\label{sec:limititeorici}
+In questo capitolo verranno trattati alcuni fondamenti teorici necessari per la
+comprensione dell'elaborato. Si procederà con un analisi sullo stato dell'arte della
+libreria in oggetto e una breve introduzione al funzionamento delle Reconfigurable
+Intelligent Surfaces, per poi passare ad una panoramica generale sulle tecniche
+di parallel computing, con particolare attenzione alle differenze tra CPU e GPU e
+tra i framework CUDA e OpenCL. Infine, si presenteranno i presupposti limiti teorici
+e risultati attesi.
 
-\lipsum[1]
-
-\subsection{Legge di Amdahl}
-\label{sec:amdahl}
+\section{Stato dell'arte della libreria CoopeRIS}
+\label{sec:statodellarte}
 
 \lipsum[1]
 
 \section{Parallel Computing}
-\label{sec:cpuvsgpu}
+\label{sec:parallelcomputing}
+
+Con il termine \textit{parallel computing} si intende la divisione di un problema
+in sotto-problemi che possono essere risolti in parallelo su più unità di calcolo.
+Un unità di calcolo può essere un core di una CPU, un core di una GPU, un thread
+di un processore o un processore dedicato. Questa divisione permette a calcolatori
+dotati di più core o thread di risolvere problemi di dimensioni maggiori in tempi
+molto più brevi rispetto a calcolatori che non implementano il parallelismo. La
+loro comparsa è stato un traguardo storico e fondamentale per lo sviluppo delle
+moderne tecnologie informatiche. Questo capitolo si propone di fornire una panoramica
+generale sulle tecniche di parallel computing, con particolare attenzione alle
+differenze tra CPU e GPU e tra i framework CUDA e OpenCL.
 
 \subsection{CPU vs. GPU}
 \label{subsec:cpuvsgpu}
 
-\paragraph{Single Instruction Multiple Data (SIMD)}
+Le CPU e le GPU sono due tipi di unità di calcolo che distinguono per architettura,
+scopo e prestazioni. La loro differenziazione nasce dalla natura delle operazioni
+che possono essere eseguite su di esse. Generalmente, le CPU sono progettate per
+eseguire operazioni complesse e molto variegate (\textit{general purpose}), forniscono
+un'architettura di calcolo più generica e flessibile, e per questo possono
+eseguire parallelamente un numero limitato di operazioni. Le GPU d'altra parte,
+sono specializzate nel parallelizzare le operazioni su grandi quantità di dati, al
+costo di una minore flessibilità. Per poter evidenziare le differenze tra CPU e
+GPU, è necessario introdurre i concetti di SISD, SIMD e SIMT.
+
+\paragraph{Single Instruction, Single Data (SISD)}
 \label{para:simd}
 
-\paragraph{Single Instruction Multiple Thread (SIMT)}
+Il modello SISD è quello del calcolo tradizionale ed è il più elementare tra i
+tre. Esso consiste in un'architettura sequenziale, in cui un singolo processore
+esegue un'istruzione per volta su un singolo dato. Questo modello è tipico delle
+CPU, che possono però gestire più thread in parallelo, grazie alla presenza di più
+core che eseguono diverse istruzioni su diversi dati. Questa tecnica è detta
+\textit{multithreading} e permette di eseguire più processi in parallelo. Data
+la sua semplicità, il modello SISD permette di ottenere performance elevate su problemi
+che richiedono un'elaborazione sequenziale di dati, ma è poco adatto per
+problemi dove le stesse operazioni devono essere eseguite su grandi quantità di
+dati in parallelo.
+
+\paragraph{Single Instruction, Multiple Data (SIMD)}
+\label{para:simd}
+
+Come suggerisce il nome, la tecnica SIMD permette di eseguire un istruzione per elaborare
+più dati in parallelo. Questa tecnica è particolarmente efficace per eseguire
+operazioni identiche su grandi quantità di dati, come nei vettoriali o generalmente
+nelle strutture linearizzabili come le matrici. La sua implementazione trova
+spazio sia nelle GPU che nelle CPU, attraverso l'uso di apposite istruzioni definite
+dall'ISA (Instruction Set Architecture) del processore.
+
+%https://www.youtube.com/watch?v=5PcQIw1JFcA&list=PLxNPSjHT5qvscDTMaIAY9boOOXAJAS7y4&index=2
+\paragraph{Single Instruction, Multiple Thread (SIMT)\cite{generalpurposegpu}}
 \label{para:simt}
 
-\lipsum[1]
+La tecnica SIMT è una variante della tecnica SIMD che estende il concetto di parallelismo
+a livello di thread. Il suo funzionamento consiste in più thread, raggruppati in
+gruppi detti \textit{warps}. Ogni thread possiede il proprio insieme di registri
+e il proprio contesto, ma condividono l'istruzione da eseguire all'interno del
+warp. In questo modo, tutti i thread del warp eseguono la medesima istruzione, ma
+con dati diversi. Se, per l'architettura del nostro programma, non tutti i
+thread all'interno del warp soddisfano un controllo di flusso, ad esempio in un branch
+condizionale, allora i thread che non rispettano la condizione vengono
+disattivati, mentre quelli che soddisfano la condizione continuano l'esecuzione.
+Questo comportamento è detto \textit{divergenza} e può portare a un rallentamento
+delle prestazioni del programma, in quanto i thread disattivati devono comunque
+attendere il completamento dell'istruzione da parte dei thread attivi, che a loro
+volta devono attendere il completamento delle istruzioni presenti nell'altro ramo
+del branch condizionale. Le GPU sono i dispositivi che implementano questa
+tecnica, che è alla base del loro funzionamento.
+
+\vspace{1em}
+
+Queste tecniche sono alla base del funzionamento delle CPU e delle GPU, e evidenziano
+quali sono le aree di applicazione di ciascuna di esse. Di seguito, a titolo esemplificativo,
+viene riportato un esempio implementativo di due funzioni di somma di vettori in
+pseudo-codice, una per CPU \ref{alg:sumvectorscpu} e una per GPU \ref{alg:sumvectorsgpu}.
+
+\begin{algorithm}
+  \caption{Somma di vettori tramite CPU}
+  \label{alg:sumvectorscpu}
+  \begin{algorithmic}
+    \Function{sum\_vectors\_cpu}{A, B, C} \For{$i \gets 0$ to $n$} \State
+    $C[i] \gets A[i] + B[i]$ \EndFor \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+Possiamo notare come la funzione \textit{sum\_vectors\_cpu} esegua la somma di due
+vettori $A$ e $B$ e memorizzi il risultato in un terzo vettore $C$ tramite un ciclo
+\textit{for} che scorre tutti gli elementi dei vettori. Questo approccio è sequenziale
+e adatto per l'esecuzione su CPU.
+
+\begin{algorithm}
+  \caption{Somma di vettori tramite GPU}
+  \label{alg:sumvectorsgpu}
+  \begin{algorithmic}
+    \Function{sum\_vectors\_gpu}{A, B, C} \State $i \gets \textit{threadId}$ \State
+    $C[i] \gets A[i] + B[i]$ \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+La funzione \textit{sum\_vectors\_gpu}, invece, esegue lo stesso compito tramite
+sole due istruzioni, senza necessità di un ciclo \textit{for}. Questo è
+possibile proprio per l'architettura SIMT, poiché $n$ istanze della funzione \textit{sum\_vectors\_gpu}
+vengono eseguite, con $n$ pari al numero di elementi da sommare. Ogni istanza, o
+thread, ha associato un indice $i$ che identifica l'elemento del vettore su cui
+deve operare, che si ottiene tramite il contesto del thread stesso. In gergo, questa
+funzione viene definita \textit{kernel}, ovvero una funzione che è compilata nel
+codice macchina specifico per la GPU, quale sarà poi invocata dal codice host
+tramite le API preposte dal framework di riferimento.
 
 \subsection{CUDA vs. OpenCL}
 \label{subsec:cudavsopencl}
 
-\lipsum[1]
+CUDA e OpenCL sono due framework per il parallel computing piuttosto diffusi e utilizzati
+per sfruttare le potenzialità delle GPU. Entrambi i framework permettono di
+scrivere codice in C/C++ per programmare le GPU, ma differiscono per finalità e prestazioni.
+CUDA è generalmente più semplice da utilizzare e più ottimizzato, ma al costo della
+compatibilità con le GPU di un solo produttore in quanto è sviluppato da NVIDIA ed
+offre la compatibilità solo con le GPU di questo produttore. OpenCL, invece, è
+un framework più generico e flessibile, che permette di programmare le GPU di diversi
+produttori, ma è meno ottimizzato e leggermente più complesso da utilizzare
+rispetto a CUDA. Entrambi i framework sono molto diffusi e utilizzati, e la
+scelta tra uno e l'altro dipende dalle esigenze del programmatore. Anche se presente,
+la loro differenza di prestazioni è trascurabile se si confrontano i risultati
+in implementazioni dove le GPU trovano la loro massima efficacia rispetto alle
+CPU.
+
+\section{Limiti teorici}
+\label{sec:limititeorici}
+
+Sebbene il calcolo parallelo sia una tecnica molto potente, essa presenta dei
+limiti invalicabili che pongono dei vincoli sulle massime prestazioni ottenibili.
+La comprensione di questi limiti è fondamentale per la progettazione di sistemi paralleli
+efficienti, soprattutto per individuare le parti del codice che sono
+strategicamente più importanti da ottimizzare. Tra questi limiti il più influente
+per questo elaborato è la legge di Amdahl, la quale sarà parte preponderante
+dell'analisi statica svolta della libreria in oggetto nel paragrafo
+\ref{sec:ottimizzazione}, poiché permetterà di individuare le parti del codice che
+richiedono più attenzione e ottimizzazione.
+
+\subsection{Legge di Amdahl}
+\label{sec:amdahl}
+
+La legge di Amdahl, formulata da Gene Amdahl nel 1967, è un principio
+fondamentale pessimista che descrive un limite superiore al miglioramento
+teorico delle prestazioni di un sistema in seguito all'aggiunta di risorse
+parallele in funzione della frazione del problema che può beneficiare della
+parallelizzazione. La sua formulazione è la seguente:
+
+\begin{equation}
+  S(N) = \frac{1}{(1 - P) + \frac{P}{N}}
+\end{equation}
+
+Dove:
+\begin{itemize}
+  \item $S(N)$ è il miglioramento teoretico ottenuto con $N$ processori.
+
+  \item $N$ è il numero di processori.
+
+  \item $P$ è la frazione del problema che può beneficiare della parallelizzazione.
+\end{itemize}
+
+In sintesi, questo modello prevede che all'aumentare del numero di processori,
+il miglioramento ottenuto con l'aggiunta di un processore aggiuntivo tende a
+zero. Per questa ragione, nel paradigma della parallelizzazione, è più conveniente
+parallelizzare le parti del codice che richiedono più tempo di esecuzione che aggiungere
+processori per parallelizzare parti del codice che richiedono poco tempo di esecuzione.
+Inoltre, non è sono considerati di altri fattori che possono influenzare le prestazioni
+di un sistema parallelo, come ad esempio la latenza di comunicazione tra i
+processori o il tempo tecnico necessario per l'avvio, la sincronizzazione e la terminazione
+dei processi paralleli.

@@ -33,6 +33,10 @@
     "Amdahl",
     "Plexe",
     "efficientamento",
-    "beamforming"
+    "beamforming",
+    "SISD",
+    "SIMT",
+    "SIMD",
+    "hyperthreading"
   ]
 }
