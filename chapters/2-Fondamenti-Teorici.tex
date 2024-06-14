@@ -65,8 +65,7 @@ nelle strutture linearizzabili come le matrici. La sua implementazione trova
 spazio sia nelle GPU che nelle CPU, attraverso l'uso di apposite istruzioni definite
 dall'ISA (Instruction Set Architecture) del processore.
 
-%https://www.youtube.com/watch?v=5PcQIw1JFcA&list=PLxNPSjHT5qvscDTMaIAY9boOOXAJAS7y4&index=2
-\paragraph{Single Instruction, Multiple Thread (SIMT)\cite{generalpurposegpu}}
+\paragraph{Single Instruction, Multiple Threads (SIMT)\cite{generalpurposegpu}}
 \label{para:simt}
 
 La tecnica SIMT è una variante della tecnica SIMD che estende il concetto di parallelismo
@@ -123,24 +122,26 @@ thread, ha associato un indice $i$ che identifica l'elemento del vettore su cui
 deve operare, che si ottiene tramite il contesto del thread stesso. In gergo, questa
 funzione viene definita \textit{kernel}, ovvero una funzione che è compilata nel
 codice macchina specifico per la GPU, quale sarà poi invocata dal codice host
-tramite le API preposte dal framework di riferimento.
+tramite le API predisposte dal framework di riferimento.
 
 \subsection{CUDA vs. OpenCL}
 \label{subsec:cudavsopencl}
 
 CUDA e OpenCL sono due framework per il parallel computing piuttosto diffusi e utilizzati
 per sfruttare le potenzialità delle GPU. Entrambi i framework permettono di
-scrivere codice in C/C++ per programmare le GPU, ma differiscono per finalità e prestazioni.
-CUDA è generalmente più semplice da utilizzare e più ottimizzato, ma al costo della
-compatibilità con le GPU di un solo produttore in quanto è sviluppato da NVIDIA ed
-offre la compatibilità solo con le GPU di questo produttore. OpenCL, invece, è
-un framework più generico e flessibile, che permette di programmare le GPU di diversi
-produttori, ma è meno ottimizzato e leggermente più complesso da utilizzare
-rispetto a CUDA. Entrambi i framework sono molto diffusi e utilizzati, e la
-scelta tra uno e l'altro dipende dalle esigenze del programmatore. Anche se presente,
+scrivere codice in \textit{C/C++} per creare programmi eseguibili su GPU, ma
+differiscono per finalità e prestazioni. CUDA è generalmente più semplice da utilizzare
+e più ottimizzato, ma al costo della compatibilità con le GPU di un solo
+produttore in quanto è sviluppato da NVIDIA ed offre la compatibilità solo con
+le GPU di questo produttore. OpenCL, invece, è un framework più generico e flessibile,
+che permette di programmare su virtualmente tutte le piattaforme GPU , ma al
+costo di un overhead maggiore rispetto a CUDA, poiché, ad esempio, è necessario compilare
+le funzioni kernel a runtime, mentre in CUDA questo passaggio è già gestito in
+fase di compilazione. Entrambi sono molto diffusi e utilizzati, e la scelta tra
+uno e l'altro dipende dalle esigenze del programmatore e dal progetto. Anche se presente,
 la loro differenza di prestazioni è trascurabile se si confrontano i risultati
 in implementazioni dove le GPU trovano la loro massima efficacia rispetto alle
-CPU.
+CPU e se si sanno sfruttare sapientemente le loro potenzialità.
 
 \section{Limiti teorici}
 \label{sec:limititeorici}
