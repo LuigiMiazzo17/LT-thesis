@@ -37,6 +37,10 @@
     "SISD",
     "SIMT",
     "SIMD",
-    "hyperthreading"
+    "hyperthreading",
+    "linearizzabili",
+    "Threadripper",
+    "Ryzen",
+    "chrono"
   ]
 }
