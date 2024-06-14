@@ -16,7 +16,7 @@ test di benchmarking che hanno permesso di confrontare tra loro le prestazioni, 
 miglioramenti e le differenze delle diverse soluzioni. Inoltre, è stato fondamentale
 valutare la correttezza matematica della procedura modificata per assicurarsi che
 non siano stati introdotti errori durante la fase di sviluppo, per tutti e tre i
-framework di parallelizzazione. In merito allo svolgimento, la liberia \textit{CoopeRIS}
+framework di parallelizzazione. In merito allo svolgimento, la libreria \textit{CoopeRIS}
 è dotata di un insieme di \textit{unit test} che sono stati eseguiti per
 garantirlo. Tutte le misurazioni delle tempistiche sono state eseguite su macchine
 con diverse configurazioni hardware per poter valutare le prestazioni in scenari
@@ -130,7 +130,7 @@ Per concludere, in figura \ref{fig:thread-over-elem} è riportato il confronto t
 il numero di elementi RISs e il numero di thread utilizzati, in scala
 logaritmica. Anche qui, la linea tratteggiata rappresenta il fit dei dati, che evidenzia
 l'effettiva linearità del problema e la corretta scalabilità della procedura.
-Inoltre si osserva come, nei casi con numero di elementi RISs basso, le
+Inoltre, si osserva come, nei casi con numero di elementi RISs basso, le
 misurazioni con numero massimo di thread siano leggermente inferiori rispetto a
 quelle con un numero minore, evidenziando l'overhead introdotto da questo tipo di
 parallelizzazione. Questi dati sono di fondamentale importanza per poter
@@ -176,7 +176,7 @@ prestazioni dei framework GPU al variare del numero di elementi RISs. La
 baseline al \textit{100\%} rappresenta il tempo di esecuzione della procedura tramite
 CUDA allo specifico numero di elementi. Si può osservare come l'implementazione
 tramite CUDA sia leggermente più performante rispetto a quella tramite OpenCL, con
-una diminuzione prestazionale che varia dal 20\% al 37,5\%. Inoltre nella
+una diminuzione prestazionale che varia dal 20\% al 37,5\%. Inoltre, nella
 misurazione è stato volutamente omesso il tempo di inizializzazione degli
 oggetti \textit{ReconfigurableIntelligentSurface}, che in OpenCL comprende la
 compilazione del kernel della funzione \textit{gain} a runtime, poiché è un'operazione
@@ -216,7 +216,7 @@ con scheda grafica NVIDIA GeForce GTX 1080.
 \section{Dimostrazione di una simulazione sul framework}
 \label{sec:dimostrazione}
 
-Come dimostrazione finale, si vogliono portare i risultati delle simulazione
+Come dimostrazione finale, si vogliono portare i risultati delle simulazioni
 tramite tutte le implementazioni della libreria, compresa quella originale, all'interno
 del framework nello scenario di esempio raffigurato in figura
 \ref{fig:framework-scenario}. Esso consiste in una RIS e un edificio che separa due

@@ -2,14 +2,14 @@
 \label{ch:fondamenti}
 
 In questo capitolo verranno trattati alcuni fondamenti teorici necessari per la
-comprensione dell'elaborato. Si procederà con un analisi sullo stato dell'arte della
+comprensione dell'elaborato. Si procederà con un'analisi sullo stato dell'arte della
 libreria in oggetto e una breve introduzione al funzionamento delle Reconfigurable
 Intelligent Surfaces, per poi passare ad una panoramica generale sulle tecniche
 di parallel computing, con particolare attenzione alle differenze tra CPU e GPU e
 tra i framework CUDA e OpenCL. Infine, si presenteranno i presupposti limiti teorici
 e risultati attesi.
 
-\section{Stato dell'arte della libreria CoopeRIS}
+\section{Modello delle Reconfigurable Intelligent Surfaces}
 \label{sec:statodellarte}
 
 \lipsum[1]
@@ -37,7 +37,7 @@ architettura, scopo e prestazioni. La loro differenziazione nasce dalla natura
 delle operazioni che possono essere eseguite su di esse. Generalmente, le CPU
 sono progettate per eseguire operazioni complesse e molto variegate (\textit{general
 purpose}), forniscono un'architettura di calcolo più generica e flessibile, e per
-questo possono eseguire parallelamente un numero limitato di operazioni. Le GPU
+questo possono eseguire parallelamente un numero limitato di operazioni. Le GPU,
 d'altra parte, sono specializzate nel parallelizzare le operazioni su grandi quantità
 di dati, al costo di una minore flessibilità. Per poter evidenziare le differenze
 tra CPU e GPU, è necessario introdurre i concetti di SISD, SIMD e SIMT.
@@ -58,7 +58,7 @@ operazioni devono essere eseguite su grandi quantità di dati in parallelo.
 \paragraph{Single Instruction, Multiple Data (SIMD)}
 \label{para:simd}
 
-Come suggerisce il nome, la tecnica SIMD permette di eseguire un istruzione per
+Come suggerisce il nome, la tecnica SIMD permette di eseguire un'istruzione per
 elaborare più dati in parallelo. Questa tecnica è particolarmente efficace per eseguire
 operazioni identiche su grandi quantità di dati, come nei vettoriali o
 generalmente nelle strutture linearizzabili come le matrici. La sua implementazione
@@ -135,7 +135,7 @@ per finalità e prestazioni. CUDA è generalmente più semplice da utilizzare e 
 ottimizzato, ma al costo della compatibilità con le GPU di un solo produttore in
 quanto è sviluppato da NVIDIA ed offre la compatibilità solo con le GPU di questo
 produttore. OpenCL, invece, è un framework più generico e flessibile, che permette
-di programmare su virtualmente tutte le piattaforme GPU , ma al costo di un overhead
+di programmare su virtualmente tutte le piattaforme GPU, ma al costo di un overhead
 maggiore rispetto a CUDA, poiché, ad esempio, è necessario compilare le funzioni
 kernel a runtime, mentre in CUDA questo passaggio è già gestito in fase di compilazione.
 Entrambi sono molto diffusi e utilizzati, e la scelta tra uno e l'altro dipende dalle
