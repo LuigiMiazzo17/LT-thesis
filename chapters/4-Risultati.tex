@@ -130,16 +130,16 @@ Per concludere, in figura \ref{fig:thread-over-elem} è riportato il confronto t
 il numero di elementi RISs e il numero di thread utilizzati, in scala
 logaritmica. Anche qui, la linea tratteggiata rappresenta il fit dei dati, che evidenzia
 l'effettiva linearità del problema e la corretta scalabilità della procedura.
-Inoltre, si osserva come, nei casi con numero di elementi RISs basso, le
-misurazioni con numero massimo di thread siano leggermente inferiori rispetto a
-quelle con un numero minore, evidenziando l'overhead introdotto da questo tipo di
-parallelizzazione. Questi dati sono di fondamentale importanza per poter
-valutare il numero ottimale di thread da utilizzare per ottenere le migliori
-prestazioni possibili. I test in riferimento sono stati eseguiti su una macchina
-con processore AMD Ryzen Threadripper 3990X, con 64 core fisici e 128 thread per
-le figure \ref{fig:risultati-cpu} e \ref{fig:jobs-per-thread}, mentre per la figura
-\ref{fig:thread-over-elem} su 2x Intel Xeon E5-2680 v4, con 14 core fisici e 28
-thread, quindi 56 thread in totale.
+Inoltre, si osserva come, nei casi con numero di elementi RISs basso, le misurazioni
+con numero massimo di thread siano leggermente inferiori rispetto a quelle con un
+numero minore, evidenziando l'overhead introdotto da questo tipo di
+parallelizzazione. Questi dati sono di fondamentale importanza per poter valutare
+il numero ottimale di thread da utilizzare per ottenere le migliori prestazioni possibili.
+I test in riferimento sono stati eseguiti su una macchina con processore AMD
+Ryzen Threadripper 3990X, con 64 core fisici e 128 thread per le figure \ref{fig:risultati-cpu}
+e \ref{fig:jobs-per-thread}, mentre per la figura \ref{fig:thread-over-elem} su
+2x Intel Xeon E5-2680 v4, con 14 core fisici e 28 thread, quindi 56 thread in
+totale.
 
 \begin{figure}[!ht]
   \begin{minipage}[t]{0.5\linewidth}
@@ -171,12 +171,12 @@ thread, quindi 56 thread in totale.
 \subsection{Risultati: CUDA vs OpenCL}
 \label{subsec:risultati-cuda-opencl}
 
-In figura \ref{fig:risultati-cuda-opencl} si trova la comparazione percentuale delle
-prestazioni dei framework GPU al variare del numero di elementi RISs. La
-baseline al \textit{100\%} rappresenta il tempo di esecuzione della procedura tramite
-CUDA allo specifico numero di elementi. Si può osservare come l'implementazione
-tramite CUDA sia leggermente più performante rispetto a quella tramite OpenCL, con
-una diminuzione prestazionale che varia dal 20\% al 37,5\%. Inoltre, nella
+In figura \ref{fig:risultati-cuda-opencl} si trova la comparazione percentuale
+delle prestazioni dei framework GPU al variare del numero di elementi RISs. La baseline
+al \textit{100\%} rappresenta il tempo di esecuzione della procedura tramite
+CUDA allo specifico numero di elementi. Si può osservare come l'implementazione tramite
+CUDA sia leggermente più performante rispetto a quella tramite OpenCL, con una
+diminuzione prestazionale che varia dal 20\% al 37,5\%. Inoltre, nella
 misurazione è stato volutamente omesso il tempo di inizializzazione degli
 oggetti \textit{ReconfigurableIntelligentSurface}, che in OpenCL comprende la
 compilazione del kernel della funzione \textit{gain} a runtime, poiché è un'operazione
