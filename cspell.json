@@ -14,6 +14,7 @@
     "**/node_modules/",
     "**/package-lock.json",
     "*.eps",
+    "main.tex",
     "*.bib"
   ],
   "words": [
@@ -41,6 +42,9 @@
     "linearizzabili",
     "Threadripper",
     "Ryzen",
-    "chrono"
+    "chrono",
+    "cmatrix",
+    "profilazione",
+    "isotropico"
   ]
 }

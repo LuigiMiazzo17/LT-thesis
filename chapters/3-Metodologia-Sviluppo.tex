@@ -1,20 +1,97 @@
 \chapter{Metodologia e Sviluppo}
 \label{ch:metodologiasviluppo}
 
+In questo capitolo verrà presentata la metodologia e lo sviluppo delle soluzioni
+proposte per l'ottimizzazione della libreria \textit{CoopeRIS}. Verranno
+descritte le fasi di analisi, progettazione e implementazione delle soluzioni proposte,
+con particolare attenzione alle scelte effettuate e alle motivazioni che hanno
+portato alla realizzazione delle stesse. Infine sarà presente una discussione sui
+vantaggi, svantaggi e limiti di ciascuna soluzione, con particolare attenzione alle
+possibili criticità e alle sfide affrontate durante lo sviluppo.
+
 \section{Stato dell'arte della libreria \textit{CoopeRIS}}
 \label{sec:libreria}
 
-\lipsum[1]
+La libreria \textit{CoopeRIS} non è particolarmente complessa e le sue procedure
+rispecchiano i principi della programmazione ad oggetti. Tuttavia, presenta alcune
+criticità in alcuni metodi che ne limitano l'efficienza e la scalabilità, in
+particolare nelle procedure di calcolo del \textit{guadagno} del segnale riflesso
+dalla RIS, come descritto in \ref{sec:ottimizzazione}. Questo sottocapitolo fornisce
+una panoramica generale della libreria \textit{CoopeRIS} e delle sue
+funzionalità principali, inoltre che la ricerca delle possibili aree di ottimizzazione.
 
 \subsection{Architettura e funzionamento}
 \label{sec:architettura}
 
-\lipsum[1]
+Il funzionamento della libreria \textit{CoopeRIS} è basato su un'architettura a classi
+e metodi, in cui ciascuna classe rappresenta una RIS e i metodi sono utilizzati
+per calcolare le grandezze fisiche e geometriche necessarie per la simulazione, ed
+implementa la libreria GSL\cite{gnugsl} per la manipolazione di matrici e
+vettori. I due metodi principali sono i seguenti:
+
+\begin{itemize}
+  \item \texttt{computePhases}: calcola le fasi dei singoli elementi dati gli angoli
+    di incidenza e riflessione;
+
+  \item \texttt{gain}: calcola il guadagno isotropico del segnale riflesso dalla
+    RIS dati gli angoli di trasmettitore e del ricevitore, derivazione dell'equazione
+    \ref{eq:gain}.
+\end{itemize}
+
+In una esecuzione tipica, la prima fase è quella di calcolare le fasi dati gli angoli
+di incidenza e riflessione tramite la funzione\texttt{computePhases} salvandoli sulla
+matrice denominata $coding$, ovvero lo stato della RIS, e a calcolare il guadagno
+del segnale riflesso dati gli angoli di trasmettitore e ricevitore tramite il metodo
+\texttt{gain}.
 
 \subsection{Identificazione dei colli di bottiglia e aree di ottimizzazione}
 \label{sec:ottimizzazione}
 
-\lipsum[1]
+Il metodo \texttt{computePhases} non è particolarmente soggetto a criticità, la sua
+complessità computazionale è lineare rispetto al numero di elementi della RIS,
+inoltre dopo una prima profilazione, la procedura risulta già essere sufficientemente
+veloce e ottimizzata. Il metodo \texttt{gain}, osservabile nel dettaglio nel
+listato \ref{lst:gain}, è più complesso e richiede un numero maggiore di operazioni
+aritmetiche e geometriche. La procedura di calcolo del guadagno è infatti basata
+su un doppio ciclo $for$ annidato, che scorre tutti gli elementi della RIS e calcola
+il contributo di ciascuno di essi al guadagno totale, per ogni possibile angolo
+di azimuth ed elevazione del ricevitore, come in equazione \ref{eq:gain}. Questo
+comporta che il metodo \texttt{gain} scali in maniera quadratica rispetto al numero
+di elementi della RIS e alla scelta di discretizzazione dei possibili angoli $\phi$
+e $\theta$.
+
+\lstinputlisting[caption=Metodo \texttt{gain} della libreria \textit{CoopeRIS}, label={lst:listing-cpp},
+language=C++, label=lst:gain]{listings/original-gain.cpp}
+
+Dopo una prima analisi statica del codice, si possono identificare quali parti di
+esso corrispondano alle operazione matematiche descritte nelle equazioni \ref{eq:power}
+e \ref{eq:gain}:
+
+\begin{itemize}
+  \item Le righe 15-16 sono i due cicli $for$ annidati che scorrono tutti gli elementi
+    della RIS, indicati dalle sommatorie in equazione \ref{eq:power};
+
+  \item Le matrici $n\_k\_du\_sin\_cos$ e $m\_k\_du\_sin\_sin$ in righe 18-19 corrispondono
+    rispettivamente ai termini $\Phi_{m,n}+\Theta_{m,n}$, in questo caso
+    precedentemente calcolati, per ogni possibile angolo discreto $\phi$ e $\theta$
+    di trasmettitore, ricevitore, incidenza e riflessione, come equazione
+    \ref{eq:power};
+
+  \item Alle righe 26-27 è presente la moltiplicazione per $-j$ dei precedenti termini
+    e l'applicazione della funzione esponenziale, come in equazione
+    \ref{eq:power};
+
+  \item Riga 28 è la somma di $\textbf{P}_{\phi_{rx},\theta_{rx}}$ per elemento della
+    RIS nella matrice \texttt{phase}, utile per il calcolo del guadagno totale $\texttt
+    {p\_tot}$ utilizzato in equazione \ref{eq:gain};
+
+  \item Le righe 42-43 corrispondono al calcolo del guadagno del segnale $\texttt
+    {p\_tot}$ espresso da $\textbf{G}$ in equazione \ref{eq:gain}
+\end{itemize}
+
+Si può notare inoltre un layer di cache nelle righe 7-9 e 52, scelta molto comune
+per ottimizzare in quanto permette di evitare il ricalcolo di valori già calcolati
+in precedenza.
 
 \section{Implementazione della soluzione proposta}
 \label{sec:implementazione}
