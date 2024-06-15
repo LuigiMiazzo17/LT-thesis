@@ -2,7 +2,7 @@
 \label{ch:risultati}
 
 In questo capitolo vengono presentati i risultati ottenuti durante la fase di
-benchmarking della libreria e della procedura \textit{gain}, ovvero quella
+benchmarking della libreria e della procedura \texttt{gain}, ovvero quella
 soggetta alle ottimizzazioni nel capitolo precedente. Questa fase è di notevole importanza,
 in quanto permette di valutare il lavoro svolto, confrontando tutti i framework di
 parallelizzazione tra loro, oltre che all'implementazione originale, per avere un
@@ -40,7 +40,7 @@ fluttuazioni dell'ambiente di esecuzione.
 \subsection{Risultati complessivi}
 \label{subsec:risultati-complessivi}
 
-I risultati complessivi del benchmarking della libreria sulla procedura \textit{gain}
+I risultati complessivi del benchmarking della libreria sulla procedura \texttt{gain}
 sono stati molto positivi. Le ottimizzazioni apportate hanno ottenuto un notevole
 incremento prestazionale, raggiungendo in alcuni casi un aumento fino a due
 ordini di grandezza nei casi in cui le RISs presentavano il numero massimo di
@@ -179,7 +179,7 @@ CUDA sia leggermente più performante rispetto a quella tramite OpenCL, con una
 diminuzione prestazionale che varia dal 20\% al 37,5\%. Inoltre, nella
 misurazione è stato volutamente omesso il tempo di inizializzazione degli
 oggetti \textit{ReconfigurableIntelligentSurface}, che in OpenCL comprende la
-compilazione del kernel della funzione \textit{gain} a runtime, poiché è un'operazione
+compilazione del kernel della funzione \texttt{gain} a runtime, poiché è un'operazione
 che viene eseguita una sola volta all'avvio del framework e non impattante nel
 contesto generale di una simulazione. I risultati sono stati ottenuti su una macchina
 con scheda grafica NVIDIA GeForce GTX 1080.
