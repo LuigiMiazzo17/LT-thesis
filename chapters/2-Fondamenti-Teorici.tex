@@ -182,7 +182,7 @@ quali sono le aree di applicazione di ciascuna di esse. Di seguito, a titolo ese
 viene riportato un esempio implementativo di due funzioni di somma di vettori in
 pseudo-codice, una per CPU (\ref{alg:sumvectorscpu}) e una per GPU (\ref{alg:sumvectorsgpu}).
 
-\begin{minipage}{\linewidth}
+\begin{figure}[h!]
   \vspace{1em}
   \begin{algorithm}
     [H]
@@ -194,14 +194,14 @@ pseudo-codice, una per CPU (\ref{alg:sumvectorscpu}) e una per GPU (\ref{alg:sum
     \end{algorithmic}
   \end{algorithm}
   \vspace{1em}
-\end{minipage}
+\end{figure}
 
 Possiamo notare come la funzione \textit{sum\_vectors\_cpu} esegua la somma di due
 vettori $A$ e $B$ e memorizzi il risultato in un terzo vettore $C$ tramite un ciclo
 \textit{for} che scorre tutti gli elementi dei vettori. Questo approccio è sequenziale
 ed è quello classico adotto per l'esecuzione su CPU.
 
-\begin{minipage}{\linewidth}
+\begin{figure}[h!]
   \vspace{1em}
   \begin{algorithm}
     [H]
@@ -213,7 +213,7 @@ ed è quello classico adotto per l'esecuzione su CPU.
     \end{algorithmic}
   \end{algorithm}
   \vspace{1em}
-\end{minipage}
+\end{figure}
 
 La funzione \textit{sum\_vectors\_gpu}, invece, esegue lo stesso compito tramite
 sole due istruzioni, senza necessità di un ciclo \textit{for}. Questo è
