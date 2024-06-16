@@ -15,7 +15,9 @@
     "**/package-lock.json",
     "*.eps",
     "main.tex",
-    "*.bib"
+    "*.bib",
+    "**/images/",
+    "**/listings/"
   ],
   "words": [
     "booktitle",
@@ -29,7 +31,8 @@
     "Miazzo",
     "Segata",
     "CoopeRIS",
-    "Cuda",
+    "cuda",
+    "opencl",
     "libpthread",
     "Amdahl",
     "Plexe",
@@ -40,11 +43,13 @@
     "SIMD",
     "hyperthreading",
     "linearizzabili",
+    "linearizzata",
     "Threadripper",
     "Ryzen",
     "chrono",
     "cmatrix",
     "profilazione",
-    "isotropico"
+    "isotropico",
+    "POSIX"
   ]
 }
