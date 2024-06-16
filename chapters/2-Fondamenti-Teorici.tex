@@ -136,7 +136,7 @@ tre. Esso consiste in un'architettura sequenziale, in cui un singolo processore
 esegue un'istruzione per volta su un singolo dato. Questo modello è tipico delle
 CPU, che possono però gestire più thread in parallelo grazie alla presenza di
 più core indipendenti che eseguono diverse istruzioni su diversi dati. Questa tecnica
-è detta \textit{Multi-threading} e permette di eseguire più processi in
+è detta \textit{multi-threading} e permette di eseguire più processi in
 parallelo. Data la sua semplicità, il modello SISD permette di ottenere
 performance elevate su problemi che richiedono un'elaborazione sequenziale di
 dati, come ad esempio i sistemi operativi o i programmi di uso generale.
@@ -254,7 +254,7 @@ invalicabili che pongono dei vincoli sulle massime prestazioni ottenibili. La
 comprensione di questi limiti è fondamentale per la progettazione di sistemi
 paralleli efficienti, soprattutto per individuare le parti del codice che sono strategicamente
 più importanti da ottimizzare. Tra questi limiti il più influente per questo
-elaborato è la legge di Amdahl, la quale sarà parte preponderante dell'analisi statica
+elaborato è la Legge Li Amdahl, la quale sarà parte preponderante dell'analisi statica
 svolta della libreria in oggetto nel paragrafo \ref{sec:ottimizzazione}, poiché
 permetterà di individuare le parti del codice che richiedono più attenzione e
 ottimizzazione.
@@ -262,7 +262,7 @@ ottimizzazione.
 \subsection{Legge di Amdahl}
 \label{sec:amdahl}
 
-La legge di Amdahl, formulata da Gene Amdahl nel 1967, è un principio fondamentale
+La Legge di Amdahl, formulata da Gene Amdahl nel 1967, è un principio fondamentale
 pessimista che descrive un limite superiore al miglioramento teorico delle prestazioni
 di un sistema in seguito all'aggiunta di risorse parallele in funzione della frazione
 del problema che può beneficiare della parallelizzazione. La sua formulazione è
