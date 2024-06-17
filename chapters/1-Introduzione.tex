@@ -37,7 +37,7 @@ simulazione}
   {r}{.40\textwidth}
   \centering
   \def\stackalignment{l}{ \includegraphics[width=\linewidth]{images/examples/ris-intersection.png} }
-  \caption{Scenario di esempio di comunicazione tra veicoli tramite RISs}
+  \caption{Scenario di esempio di comunicazione tra veicoli tramite RISs\cite{cooperis}}
   \label{fig:example-ris-scenario}
   \vspace{1em}
 \end{wrapfigure}
@@ -56,7 +56,7 @@ millimetriche dove la propagazione e la penetrazione del segnale attraverso gli
 ostacoli e le ostruzioni presenti nell'ambiente circostante sono molto scarse, soprattutto
 in situazioni in cui non sempre è presente una diretta visibilità (LoS, Line of Sight)
 tra trasmettitore e ricevitore, ad esempio in ambienti urbani o indoor. Aumenta
-esponenzialmente la loro utilità quando si considera la loro capacità di
+notevolmente la loro utilità quando si considera la loro capacità di
 riconfigurazione in tempo reale, permettendo di creare canali di comunicazione dinamici
 e più efficienti nei casi in cui ricevitore e trasmettitore siano in movimento,
 diminuendo il rumore generato dalla naturale diffusione del segnale e
@@ -79,34 +79,30 @@ viene citato e descritto brevemente lo stack dei framework di simulazione:
     la simulazione del platooning di veicoli\cite{plexe}.
 \end{itemize}
 
-\section{Obiettivi della Tesi}
-\label{sec:obiettivi}
+\section{Contributo della Tesi}
+\label{sec:contributo}
 
 Questo elaborato si pone come obiettivo quello di migliorare la libreria in
 oggetto, implementando soluzioni di ottimizzazione ed efficientamento del codice
 tramite calcolo parallelo, sia mediante procedure multi-threading che attraverso
-l'utilizzo di GPU, con lo scopo finale di ridurre i tempi di esecuzione delle simulazioni,
-pur permettendo a diversi utenti di poter eseguire simulazioni in parallelo con
-l'hardware a loro disposizione. Inoltre, assieme a queste migliorie, si propone una
-valutazione sia qualitativa che quantitativa delle varie tecnologie utilizzate nei
-casi di studio previsti dal paper in riferimento\cite{cooperis}, in modo da poter
-fornire una panoramica completa delle migliorie ottenute, dei vantaggi e
-svantaggi di ciascuna tecnologia e delle problematiche riscontrate durante lo
-sviluppo.
+l'utilizzo di GPU, con lo scopo finale di ridurre i tempi di esecuzione delle simulazioni.
+Inoltre, assieme a queste migliorie, si propone una valutazione sia qualitativa
+che quantitativa delle varie tecnologie utilizzate nei casi di studio previsti
+dal paper in riferimento\cite{cooperis}, in modo da poter fornire una panoramica
+completa delle migliorie ottenute, dei vantaggi e svantaggi di ciascuna tecnologia
+e delle problematiche riscontrate durante lo sviluppo. La soluzione proposta
+prevede di effettuare un'analisi preventiva del codice sorgente della libreria
+in oggetto per identificare le eventuali criticità e i punti in cui una
+possibile implementazione di calcolo parallelo potrebbe portare ai miglioramenti
+più significativi. In seguito, si procederà con l'implementazione di tre
+soluzioni diverse, consultabili alla tabella \ref{tab:soluzioni}, per permettere
+la maggior compatibilità con l'hardware a disposizione degli utenti. Per garantire
+la correttezza di tutte le implementazioni, il codice sarà testato tramite una
+serie di unit test per verificarne la correttezza, e sarà infine inserito all'interno
+della libreria utilizzando guardie di precompilazione per permettere la scelta della
+tecnologia desiderata.
 
-\section{Soluzione proposta}
-\label{sec:soluzione}
-
-La soluzione proposta prevede di effettuare un'analisi preventiva del codice sorgente
-della libreria in oggetto per identificare le eventuali criticità e i punti in cui
-una possibile implementazione di calcolo parallelo potrebbe portare ai miglioramenti
-più significativi. In seguito, si procederà con l'implementazione di tre soluzioni
-diverse, consultabili alla tabella \ref{tab:soluzioni}, per permettere la maggior
-compatibilità con l'hardware a disposizione degli utenti. Per garantire la
-correttezza di tutte le implementazioni, il codice sarà testato tramite una serie
-di unit test per verificarne la correttezza, e sarà infine inserito all'interno
-della libreria utilizzando guardie di precompilazione per permettere la scelta
-della tecnologia desiderata.
+\vspace{1em}
 
 \begin{table}[ht]
   \begin{center}
