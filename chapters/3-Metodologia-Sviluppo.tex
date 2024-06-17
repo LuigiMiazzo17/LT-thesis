@@ -31,24 +31,26 @@ Le due procedure principali sono le seguenti:
 
 \begin{itemize}
   \item \texttt{computePhases}: calcola le fasi dei singoli elementi dati gli angoli
-    di incidenza e riflessione;
+    di incidenza, riflessione, trasmettitore e ricevitore, implementa le
+    equazioni \ref{eq:phase-phi} e \ref{eq:phase-theta};
 
   \item \texttt{gain}: calcola il guadagno isotropico del segnale riflesso dalla
     RIS dati gli angoli di trasmettitore e del ricevitore, diretta derivazione
-    dell'equazione \ref{eq:gain}.
+    dell'equazione \ref{eq:gain} e \ref{eq:power}.
 \end{itemize}
 
-In una esecuzione tipica, la prima fase prevede di calcolare le fasi dati gli
-angoli di incidenza e riflessione tramite la funzione \texttt{computePhases} salvandoli
-sulla matrice denominata $coding$, ovvero lo stato degli elementi della RIS, per
-poi calcolare il guadagno del segnale riflesso tramite il metodo \texttt{gain}.
+In una esecuzione tipica, la prima fase prevede di calcolare gli sfasamenti di
+ogni elemento radiante tramite la funzione \texttt{computePhases}, salvando la
+configurazione sulla matrice denominata $coding$, ovvero lo stato degli elementi
+della RIS, per poi calcolare il guadagno del segnale riflesso tramite il metodo
+\texttt{gain}.
 
 \subsection{Identificazione dei colli di bottiglia e aree di ottimizzazione}
 \label{sec:ottimizzazione}
 
-Il metodo \texttt{computePhases} non è particolarmente soggetto a criticità, la sua
-complessità computazionale è lineare rispetto al numero di elementi della RIS.
-Inoltre, dopo una prima profilazione, la procedura risulta già essere
+Il metodo \texttt{computePhases} non è particolarmente soggetto a criticità in quanto
+la sua complessità computazionale è lineare rispetto al numero di elementi della
+RIS. Inoltre, dopo una prima profilazione, la procedura risulta già essere
 sufficientemente veloce e ottimizzata. Il metodo \texttt{gain}, osservabile nel dettaglio
 nel listato \ref{lst:gain}, è invece più complesso e richiede un numero molto
 maggiore di operazioni. La procedura di calcolo del guadagno è infatti basata su
@@ -112,14 +114,14 @@ condividono lo stesso obiettivo: ridurre il tempo di esecuzione nel calcolo dell
 matrice \texttt{phase} nei $for$ annidati a righe 18-19 del codice
 \ref{lst:gain} per calcolare la matrice \texttt{phase}. Identificata la sezione
 del codice da ottimizzare, si è passati alla fase di progettazione. Per poter
-rendere il codice più modulare, e permettere agli utenti di poter scegliere l'implementazione
-più adatta al proprio hardware, ogni diversa implementazione (multi-threading,
-CUDA e OpenCL) è stata delimitata da guardie pre-processore. Durante la
-configurazione del progetto tramite un apposito script \texttt{configure},
-tipico del sistema di compilazione di \textit{OMNeT++}, è possibile scegliere
-quale implementazione utilizzare mediante le opzioni \texttt{--with-cuda} e \texttt{--with-opencl}.
-Il paradigma della parallelizzazione tramite multi-threading è selezionato se non
-diversamente specificato.
+rendere il codice più modulare, e quindi per permettere agli utenti di poter scegliere
+l'implementazione più adatta al proprio hardware, ogni diversa realizzazione
+delle soluzioni proposte (multi-threading, CUDA e OpenCL) è stata delimitata da guardie
+pre-processore. Durante la configurazione del progetto tramite un apposito
+script \texttt{configure}, tipico del sistema di compilazione di \textit{OMNeT++},
+è possibile scegliere quale tra le tre utilizzare mediante le opzioni \texttt{--with-cuda}
+e \texttt{--with-opencl}. Il paradigma della parallelizzazione tramite multi-threading
+è selezionato se non diversamente specificato.
 
 \subsection{Parallelizzazione tramite multi-threading}
 \label{subsec:multithreading}
@@ -151,20 +153,20 @@ In questa struttura, sono presenti i seguenti campi:
 
 \begin{itemize}
   \item \texttt{ris}: un puntatore alla RIS su cui effettuare i calcoli (necessario
-    poiché la routine di ogni thread deve necessariamente essere un metodo
-    statico);
+    poiché la routine di ingresso dai thread deve necessariamente essere un
+    metodo statico);
 
   \item \texttt{thetaTX\_rad}, \texttt{phiTX\_rad}, \texttt{thetaRX\_rad} e
     \texttt{phiRX\_rad}: azimuth ed elevazione di trasmettitore e ricevitore;
 
-  \item \texttt{start} e \texttt{end}: indici di partenza e fine per la porzione
+  \item \texttt{start} e \texttt{end}: indici di inizio e fine per la porzione
     di elementi della RIS da calcolare;
 
   \item \texttt{tmp\_phase}: puntatore alla matrice parziale su cui ogni thread scrive
     i propri risultati.
 \end{itemize}
 
-Dopo aver definito la struttura dati, si a definire la routine che ogni thread
+Dopo aver definito la struttura dati, si è definita la routine che ogni thread
 dovrà eseguire, come mostrato nel listato \ref{lst:thread-routine}.
 
 \vspace{1em}
@@ -173,7 +175,7 @@ dovrà eseguire, come mostrato nel listato \ref{lst:thread-routine}.
 \vspace{1em}
 
 Questa procedura è in pratica una copia delle operazioni effettuate nei cicli
-$fo r$ in \ref{lst:gain}, con la differenza che ogni thread lavorerà su una porzione
+$for$ in \ref{lst:gain}, con la differenza che ogni thread lavorerà solo su una porzione
 di elementi della RIS e salverà i risultati parziali nella matrice \texttt{tmp\_phase}.
 Infine, nel listato \ref{lst:thread-creation}, si può osservare come vengono creati
 i thread, come vengono passati i parametri e come vengono attesi alla fine dell'esecuzione.
