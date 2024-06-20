@@ -76,11 +76,15 @@ di esso corrispondano alle operazione matematiche descritte nelle equazioni
   \item Le righe 18-19 sono i due cicli $for$ annidati che scorrono tutti gli elementi
     della RIS, indicati dalle sommatorie in equazione \ref{eq:power};
 
-  \item Le matrici $n\_k\_du\_sin\_cos$ e $m\_k\_du\_sin\_sin$ in righe 24-25 corrispondono
-    rispettivamente ai termini $\Phi_{m,n}$ e $\Theta_{m,n}$, in questo caso
-    precedentemente calcolati, per ogni possibile angolo discreto $\phi$ e $\theta$
-    di trasmettitore, ricevitore, incidenza e riflessione, come equazione
-    \ref{eq:power};
+  \item Le matrici $k\_du\_sin\_cos$ e $k\_du\_sin\_sin$ nelle righe 24-25 (che
+    sono calcolate nella fase di inizializzazione della RIS in quanto statiche) corrispondono
+    alla parte del termine $\Theta_{m,n}$ dipendente solamente dalla posizione del
+    ricevitore, per ogni possibile angolo discreto $\phi$ e $\theta$. Queste sono
+    successivamente moltiplicate rispettivamente per $n$ e $m$, ovvero la
+    posizione dell'elemento RIS, per poi essere sommate, sia tra di loro, che con
+    il corrispettivo termine $\Phi_{m,n}$ e \texttt{alpha}, ovvero la parte di $\Theta
+    _{m,n}$ dipendente dalla posizione del trasmettitore. Questo ha lo scopo di
+    calcolare il termine $\Phi_{m,n}+\Theta_{m,n}$ in equazione \ref{eq:power};
 
   \item Alle righe 35-36 è presente la moltiplicazione per $-j$ dei precedenti termini
     e l'applicazione della funzione esponenziale, come in equazione
@@ -217,47 +221,193 @@ $t_{5}- t_{4}$, che risulta essere con un trend crescente, ma comunque contenuto
 \subsection{Parallelizzazione su GPU}
 \label{subsec:cuda}
 
-\lipsum[1]
+Come anticipato nel capitolo \ref{sec:contributo}, le implementazioni tramite
+GPU sono state realizzate utilizzando le librerie \textit{CUDA}\cite{cuda} e
+\textit{OpenCL}\cite{opencl}. La prima è una libreria sviluppata da \textit{NVIDIA}
+e supporta solo le GPU di questo produttore, mentre la seconda è una libreria cross-platform
+sviluppata da \textit{Khronos Group} e supporta praticamente tutte le
+piattaforme disponibili. La programmazione su GPU è un approccio molto differente
+rispetto al multi-threading, data la completa differenza di architettura
+rispetto le CPU. In aggiunta le due librerie presentano delle differenze sostanziali
+che ne influenzano di molto l'implementazione, ma possiedono anche degli aspetti
+che le accomunano. Entrambe permettono di sfruttare l'architettura \textit{SIMT}
+discussa nel paragrafo \ref{para:simt}. Esse prevedono funzioni denominate \textit{kernel},
+ovvero le procedure definite per essere eseguite sul \textit{device} (GPU), le quali
+sono invocate dall'\textit{host} (CPU). La principale differenza tra le due è che
+CUDA è genera il codice \textit{kernel} in fase di compilazione, tramite il predisposto
+compilatore \texttt{nvcc}, mentre OpenCL genera il codice \textit{device} in
+fase di esecuzione poiché, essendo una libreria cross-platform, non può
+conoscere a priori il dispositivo di destinazione. Queste divergenze comportano che
+a parità di complessità del codice, \textit{CUDA} sia più performante in quanto più
+ottimizzata rispetto lo specifico target, mentre \textit{OpenCL} rimane più flessibile
+e portabile. \cite{cudavsopencl}
+
+Il primo passo per la realizzazione è stato quello di identificare come integrare
+il codice della libreria \textit{CoopeRIS} con le librerie di programmazione su
+GPU. L'approccio scelto è stato quello di mantenere il codice della procedura \texttt{gain}
+invariato e di sostituire il calcolo della matrice \texttt{phase} tramite un kernel
+creato ad hoc.
+
+\paragraph{Implementazione tramite \textit{CUDA}}
+\label{para:cuda}
+
+Nel listato \ref{lst:cuda-kernel} è possibile osservare il codice del kernel tramite
+CUDA per il calcolo della matrice \texttt{phase} per singolo elemento della RIS
+in posizione $n, m$. Per ottimizzare al massimo le prestazioni la procedura originaria
+(righe 21-42 del listato \ref{lst:gain}) è stata semplificata algebricamente.
+
+\lstinputlisting[caption=Kernel CUDA per il calcolo di \texttt{phase}, language=C++,
+label=lst:cuda-kernel]{listings/cuda-kernel.cpp}
+
+Di seguito si trova una breve descrizione della procedura:
+
+\begin{itemize}
+  \item Nella prima riga si definisce la firma del kernel, con i parametri
+    necessari per effettuare la computazione. I puntatori \texttt{k\_du\_sin\_cos},
+    \texttt{k\_du\_sin\_sin}, \texttt{phase\_real} e \texttt{phase\_imag} sono puntatori
+    alla memoria globale del device, \texttt{n} e \texttt{m} sono gli indici
+    dell'elemento della RIS in fase di calcolo, \texttt{PHI} e \texttt{alpha} rappresentano
+    rispettivamente lo sfasamento della segnale secondo l'attuale configurazione
+    della RIS e lo sfasamento dovuto alla posizione dovuta al trasmettitore, ed
+    infine \texttt{size} è la dimensione della matrice linearizzata \texttt{phase};
+
+  \item Riga 2 rappresenta il principio fondamentale della programmazione tramite
+    la tecnica \textit{SIMT}: ogni thread riceve qui dal proprio contesto l'indice
+    $i$ dell'elemento della matrice \texttt{phase} su cui dovrà lavorare;
+
+  \item Per spiegare lo scopo dell'\texttt{if} a riga 3, si deve fare riferimento
+    al funzionamento della tecnica \textit{SIMT}: la creazione dei thread avviene
+    a blocchi di thread, la cui grandezza è definita all'architettura hardware
+    della GPU. Per evitare che thread non necessari eseguano operazioni inutili su
+    memoria non allocata, è necessario controllare che l'indice $i$ sia minore
+    del numero di elementi della RIS. Questo permette che la dimensione del problema
+    non sia necessariamente un multiplo della dimensione del blocchi di thread;
+
+  \item A riga 4 è computato il valore della componente che in equazione \ref{eq:power}
+    è espressa da $-j(\Phi_{m,n}+\Theta_{m,n})$. Dato che $\Phi_{m,n}$ e
+    $\Theta_{m,n}$ appartengono all'insieme dei reali, in questo calcolo non è necessario
+    memorizzare la parte reale dal momento che essa è sempre pari a zero;
+
+  \item Le righe 5-6 infine implementano l'esponenziazione del precedente valore
+    calcolato, come in equazione \ref{eq:power}, tramite l'equazione di Eulero.
+\end{itemize}
+
+L'effettiva integrazione di questa procedura nel codice della libreria \textit{CoopeRIS}
+è stata realizzata tramite la creazione di funzioni di supporto per l'inizializzazione,
+l'allocazione, deallocazione e copia della memoria sul device e l'invocazione
+del kernel. Nel listato \ref{lst:cuda-gain} è possibile osservare la corrispettiva
+funzione di calcolo della matrice \texttt{phase} tramite \textit{CUDA}.
+
+\lstinputlisting[caption=Funzione del calcolo di \texttt{phase} tramite \textit{CUDA},
+language=C++, label=lst:cuda-gain]{listings/cuda-gain.cpp}
+
+Come si può osservare, questa procedura è molto simile rispetto quella originaria:
+la principale differenza risiede nelle allocazioni e copia della memoria dall'host
+al device e viceversa, e nell'invocazione del kernel.
+
+\paragraph{Implementazione tramite \textit{OpenCl}}
+\label{para:opencl}
+
+Ciò che differenzia maggiormente l'implementazione tramite \textit{OpenCL}
+rispetto \textit{CUDA} è la necessità di compilare la funzione kernel in fase di
+esecuzione. Questo comporta che questa soluzione richieda una ulteriore
+configurazione in fase di creazione dell'istanza RIS per rispettare i vincoli
+sopracitati. Per permettere ad un utente con molteplici piattaforme supportate da
+\textit{OpenCL}, sono stati introdotti due nuovi parametri nella configurazione dell'ambiente
+di simulazione \textit{OMNeT++}: \texttt{openclPlatformId} e \texttt{openclDeviceId},
+che consentono rispettivamente di selezionare la piattaforma e il dispositivo su
+cui esso desidera eseguire il calcolo. Per il resto, il funzionamento della
+procedura kernel e delle invocazioni alle API di \textit{OpenCL} sono concettualmente
+identiche a quelle di \textit{CUDA} e per questa ragione omesse in questa
+sezione.
 
 \section{Discussione e Valutazione}
 \label{ch:discussione}
 
+In questo capitolo si vuole portare un analisi qualitativa delle soluzioni proposte
+per l'ottimizzazione della libreria \textit{CoopeRIS}. Si discuteranno i vantaggi
+e gli svantaggi di ciascuna soluzione, i limiti e le sfide affrontate durante lo
+sviluppo, e si valuterà l'efficacia delle stesse rispetto l'obiettivo prefissato.
+
 \subsection{Vantaggi delle soluzioni implementate}
 \label{subsec:vantaggi}
 
-\lipsum[1]
+Molti sono i vantaggi che le soluzioni proposte apportano alla libreria \textit{CoopeRIS}.
+I principali sono la riduzione del tempo di esecuzione, il supporto multi-piattaforma
+e la possibilità di sfruttare hardware dedicato. Questi aspetti sono stati i
+principali esigenze che hanno portato alla scelta di intraprendere questo
+progetto.
 
 \paragraph{Performance e tempo di esecuzione}
 \label{para:performance}
 
-\lipsum[1]
+Il primo e più importante beneficio del calcolo parallelo è la riduzione del
+tempo di esecuzione. Questo è stato confermato dai risultati ottenuti durante le
+fasi di \textit{benchmarking} della libreria stessa oltreché nel framework di
+simulazione completo, discussi nel dettaglio nel capitolo \ref{ch:risultati}. Il
+risparmio di tempo di esecuzione è il motivo principale per cui si è scelto di
+intraprendere questo progetto, e tutte e tre le implementazioni hanno dimostrato
+di essere efficaci secondo questo criterio. La soluzione mediante \textit{CUDA} ha
+dimostrato di essere la più performante, seguita da quella tramite \textit{OpenCL}
+e infine \textit{multi-threading}. Questo risultato è in linea con le aspettative,
+e per questo motivo il progetto è stato considerato come discreto successo.
 
 \paragraph{Supporto multi-piattaforma}
 \label{para:supporto}
 
-\lipsum[1]
+Un ulteriore vantaggio significativo, soprattutto in riferimento all'adozione di
+\textit{OpenCL} come soluzione, risiede nella capacità di impiegare la libreria su
+una vasta gamma di piattaforme diverse. Tale caratteristica rappresenta un
+elemento di primaria importanza per garantire la massima compatibilità e
+portabilità del codice, consentendo di svincolare l'utente dal fenomeno del \textit{vendor
+lock-in}. Questo problema è frequentemente riscontrato nell'utilizzo di soluzioni
+proprietarie come \textit{CUDA}. La possibilità di mantenere l'indipendenza dal fornitore
+specifico di hardware o software conferisce un valore aggiunto notevole,
+promuovendo un ecosistema di sviluppo più aperto e flessibile.
 
 \subsection{Svantaggi delle soluzioni implementate}
 \label{sec:svantaggi}
 
-\lipsum[1]
+Nonostante i vantaggi, le soluzioni proposte presentano anche degli svantaggi
+che ne limitano l'utilizzo e l'efficacia. Principalmente, si possono
+identificare la leggibilità e manutenibilità del codice e la richiesta di
+hardware dedicato. Importante è anche considerare che le soluzioni proposte non sono
+state progettate per essere utilizzate in maniera combinata, ma piuttosto come
+alternative tra cui l'utente può scegliere in base alle proprie esigenze, e per questo
+motivo il beneficio rispetto lo sforzo richiesto è limitato.
 
 \paragraph{Leggibilità e manutenibilità del codice}
 \label{para:leggibilita}
 
-\lipsum[1]
+Un aspetto negativo di questo progetto è la complessità aggiunta al codice della
+libreria \textit{CoopeRIS}, soprattutto derivante dalla necessità di mantenere tre
+diverse implementazioni per la stessa funzionalità, scritte secondo tre diversi
+paradigmi e convenzioni. Questo rende di molto più difficile la comprensione del
+codice, specialmente per utenti non confidenti con la programmazione parallela o
+i framework di calcolo su GPU. Questo rappresenta un ostacolo non indifferente,
+soprattutto nell'ottica di futuri sviluppi.
 
 \paragraph{Richiesta di hardware dedicato}
 \label{para:hardware}
 
-\lipsum[1]
-
-\paragraph{Richiesta di conoscenze specifiche}
-\label{para:conoscenze}
-
-\lipsum[1]
+Un ulteriore critica nei confronti di questo progetto è la necessità di hardware
+specifico e dedicato per poter sfruttare le implementazioni ottimizzate, soprattutto
+per quanto riguarda le soluzioni tramite \textit{CUDA} e \textit{OpenCL}. Questa
+è stata la principale motivazione che ha portato alla scelta di adoperare anche
+una implementazione multi-threading, poiché è l'unica tra le tre che non richiede
+hardware aggiuntivo.
 
 \subsection{Limiti e sfide affrontate}
 \label{subsec:limiti}
 
-\lipsum[1]
+Le principali sfide affrontate durante lo sviluppo di questo progetto sono state
+la complessità del codice e la necessità di costruire un'architettura modulare
+che permettesse di mantenere le tre diverse implementazioni in maniera ordinata.
+Questo ha richiesto una meticolosa progettazione e un'attenta implementazione,
+che ha richiesto molto tempo e sforzo. Un altro ostacolo è stato la necessità di
+apprendere nuove tecnologie e paradigmi di programmazione, come la
+programmazione su GPU, che ha richiesto un periodo di studio e apprendimento prima
+di poter essere implementata correttamente. Infine, l'ultimo aspetto critico è stato
+la necessità di effettuare dei test approfonditi e di profilare il codice per garantire
+la correttezza di tutte e tre le implementazione e che esse fossero effettivamente
+più performanti rispetto la soluzione originaria.

@@ -50,6 +50,12 @@
     "cmatrix",
     "profilazione",
     "isotropico",
-    "POSIX"
+    "POSIX",
+    "Khronos",
+    "dall",
+    "nvcc",
+    "esponenziazione",
+    "deallocazione",
+    "performanti"
   ]
 }
