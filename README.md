@@ -8,5 +8,4 @@ Le Reconfigurable Intelligent Surfaces (RISs) sono una tecnologia emergente che 
 
 ## License
 
-This project is licensed under the [MIT](https://opensource.org/licenses/MIT) \
-license See [LICENSE](./LICENSE) file for details
+This project is licensed under the [MIT](https://opensource.org/licenses/MIT) license See [LICENSE](./LICENSE) file for details
