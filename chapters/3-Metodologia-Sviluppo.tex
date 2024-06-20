@@ -1,13 +1,13 @@
 \chapter{Metodologia e Sviluppo}
 \label{ch:metodologiasviluppo}
 
-In questo capitolo verrà presentata la metodologia e lo sviluppo delle soluzioni
-proposte nel capitolo \ref{sec:contributo} per l'ottimizzazione della libreria
-\textit{CoopeRIS}. Verranno descritte le fasi di analisi, progettazione ed implementazione,
-con particolare attenzione alle scelte effettuate e alle motivazioni che hanno
-portato alla realizzazione delle stesse. Infine, sarà presente una discussione
-sui vantaggi, svantaggi e limiti di ciascuna soluzione, oltre che alle sfide
-affrontate durante lo sviluppo.
+In questo capitolo verranno presentati la metodologia e lo sviluppo delle
+soluzioni proposte nel capitolo \ref{sec:contributo} per l'ottimizzazione della
+libreria \textit{CoopeRIS}. Verranno descritte le fasi di analisi, progettazione
+ed implementazione, con particolare attenzione alle scelte effettuate e alle
+motivazioni che hanno portato alla realizzazione delle stesse. Infine, sarà
+presente una discussione sui vantaggi, svantaggi e limiti di ciascuna soluzione,
+oltre che alle sfide affrontate durante lo sviluppo.
 
 \section{Stato dell'arte della libreria \textit{CoopeRIS}}
 \label{sec:libreria}
@@ -26,8 +26,8 @@ possibili aree di ottimizzazione della stessa.
 Il suo funzionamento è basato su un'architettura a classi in cui ogni istanza rappresenta
 una RIS, i suoi metodi implementano le operazioni necessarie al fine di
 calcolare le grandezze fisiche e geometriche utili alla simulazione, ed infine sfrutta
-la libreria GSL\cite{gnugsl} per la manipolazione di vettori e matrici, reali e complesse.
-Le due procedure principali sono le seguenti:
+la libreria \textit{GSL}\cite{gnugsl} per la manipolazione di vettori e matrici,
+reali e complesse. Le due procedure principali sono le seguenti:
 
 \begin{itemize}
   \item \texttt{computePhases}: calcola le fasi dei singoli elementi dati gli angoli
@@ -40,28 +40,27 @@ Le due procedure principali sono le seguenti:
     dell'equazione \ref{eq:gain} e \ref{eq:power}.
 \end{itemize}
 
-In una esecuzione tipica, la prima fase prevede di calcolare gli sfasamenti di
-ogni elemento radiante tramite la funzione \texttt{computePhases}, salvando la
-configurazione sulla matrice denominata $coding$, ovvero lo stato degli elementi
-della RIS, per poi calcolare il guadagno del segnale riflesso tramite il metodo
-\texttt{gain}.
+In una esecuzione tipica, la prima fase prevede di calcolare gli sfasamenti di ogni
+elemento radiante tramite la funzione \texttt{computePhases}, salvando la configurazione
+sulla matrice denominata $coding$, ovvero lo stato degli elementi della RIS, per
+poi calcolare il guadagno del segnale riflesso tramite il metodo \texttt{gain}.
 
 \subsection{Identificazione dei colli di bottiglia e aree di ottimizzazione}
 \label{sec:ottimizzazione}
 
-Il metodo \texttt{computePhases} non è particolarmente soggetto a criticità in quanto
-la sua complessità computazionale è lineare rispetto al numero di elementi della
-RIS. Inoltre, dopo una prima profilazione, la procedura risulta già essere
-sufficientemente veloce e ottimizzata. Il metodo \texttt{gain}, osservabile nel dettaglio
-nel listato \ref{lst:gain}, è invece più complesso e richiede un numero molto
-maggiore di operazioni. La procedura di calcolo del guadagno è infatti basata su
-un doppio ciclo $for$ annidato, che scorre tutti gli elementi della RIS e
-calcola il contributo di ciascuno di essi al guadagno totale, per ogni possibile
-elemento sferico, come in equazione \ref{eq:gain} e \ref{eq:power}. Questo comporta
-che il metodo \texttt{gain} scali computazionalmente in maniera quadratica
-rispetto al numero di elementi della RIS e alla scelta di discretizzazione dei
-possibili angoli $\phi$ e $\theta$ (aumentando di conseguenza il numero di elementi
-sferici).
+Il metodo \texttt{computePhases} non è particolarmente soggetto a criticità in
+quanto la sua complessità computazionale è lineare rispetto al numero di
+elementi della RIS. Inoltre, dopo una prima profilazione, la procedura risulta già
+essere sufficientemente veloce e ottimizzata. Il metodo \texttt{gain},
+osservabile nel dettaglio nel listato \ref{lst:gain}, è invece più complesso e richiede
+un numero molto maggiore di operazioni. La procedura di calcolo del guadagno è
+infatti basata su un doppio ciclo \texttt{for} annidato, che scorre tutti gli
+elementi della RIS e calcola il contributo di ciascuno di essi al guadagno
+totale, per ogni possibile elemento sferico, come in equazione \ref{eq:gain} e
+\ref{eq:power}. Questo comporta che il metodo \texttt{gain} scali
+computazionalmente in maniera quadratica rispetto al numero di elementi della
+RIS e alla scelta di discretizzazione dei possibili angoli $\phi$ e $\theta$ (aumentando
+di conseguenza il numero di elementi sferici).
 
 \vspace{1em}
 \lstinputlisting[caption=Metodo \texttt{gain} della libreria \textit{CoopeRIS}, language=C++,
@@ -73,8 +72,8 @@ di esso corrispondano alle operazione matematiche descritte nelle equazioni
 \ref{eq:power} e \ref{eq:gain}:
 
 \begin{itemize}
-  \item Le righe 18-19 sono i due cicli $for$ annidati che scorrono tutti gli elementi
-    della RIS, indicati dalle sommatorie in equazione \ref{eq:power};
+  \item Le righe 18-19 sono i due cicli \texttt{for} annidati che scorrono tutti
+    gli elementi della RIS, indicati dalle sommatorie in equazione \ref{eq:power};
 
   \item Le matrici $k\_du\_sin\_cos$ e $k\_du\_sin\_sin$ nelle righe 24-25 (che
     sono calcolate nella fase di inizializzazione della RIS in quanto statiche) corrispondono
@@ -102,12 +101,12 @@ Si può notare inoltre un layer di cache nelle righe 10-12 e 70, implementato in
 quanto permette di evitare il ricalcolo di valori già calcolati in precedenza.
 
 Considerando della Legge di Amdahl discussa nel capitolo \ref{sec:amdahl}, i due
-cicli $for$ rappresentano la porzione del codice ottimale per le ottimizzazioni in
-oggetto in quanto sarà quella che meglio beneficerà della parallelizzazione.
-Inoltre, questa specifica sezione è ulteriormente vantaggiosa poiché tutte le iterazioni
-sono indipendenti, tranne che per la somma finale nella matrice \texttt{phase},
-e per questo è stato il punto di partenza per la progettazione delle soluzioni
-proposte.
+cicli \texttt{for} rappresentano la porzione del codice ottimale per le
+ottimizzazioni in oggetto in quanto sarà quella che meglio beneficerà della
+parallelizzazione. Inoltre, questa specifica sezione è ulteriormente vantaggiosa
+poiché tutte le iterazioni sono indipendenti tranne che per la somma finale
+nella matrice \texttt{phase}, e per questo è stato il punto di partenza per la
+progettazione delle soluzioni proposte.
 
 \section{Implementazione delle soluzioni proposte}
 \label{sec:implementazione}
@@ -116,26 +115,26 @@ Le soluzioni proposte per l'ottimizzazione del metodo \texttt{gain} sono basate
 su due approcci differenti: la parallelizzazione tramite \textit{multi-threading}
 e la parallelizzazione su GPU. Entrambe presentano piccole differenze, ma
 condividono lo stesso obiettivo: ridurre il tempo di esecuzione nel calcolo della
-matrice \texttt{phase} nei $for$ annidati a righe 18-19 del codice
-\ref{lst:gain} per calcolare la matrice \texttt{phase}. Identificata la sezione
-del codice da ottimizzare, si è passati alla fase di progettazione. Per poter
-rendere il codice più modulare, e quindi per permettere agli utenti di poter scegliere
-l'implementazione più adatta al proprio hardware, ogni diversa realizzazione
-delle soluzioni proposte (multi-threading, CUDA e OpenCL) è stata delimitata da guardie
-pre-processore. Durante la configurazione del progetto tramite un apposito
-script \texttt{configure}, tipico del sistema di compilazione di \textit{OMNeT++},
-è possibile scegliere quale tra le tre utilizzare mediante le opzioni \texttt{--with-cuda}
-e \texttt{--with-opencl}. Il paradigma della parallelizzazione tramite multi-threading
-è selezionato se non diversamente specificato.
+matrice \texttt{phase} nei \texttt{for} annidati a righe 18-19 del codice \ref{lst:gain}
+per calcolare la matrice \texttt{phase}. Identificata la sezione del codice da ottimizzare,
+si è passati alla fase di progettazione. Per poter rendere il codice più modulare,
+e quindi per permettere agli utenti di poter scegliere l'implementazione più
+adatta al proprio hardware, ogni diversa realizzazione delle soluzioni proposte (\textit{multi-threading},
+\textit{CUDA} e \textit{OpenCL}) è stata delimitata da guardie pre-processore.
+Durante la configurazione del progetto tramite un apposito script \texttt{configure},
+tipico del sistema di compilazione di \textit{OMNeT++}, è possibile scegliere
+quale tra le tre utilizzare mediante le opzioni \texttt{--with-cuda} e \texttt{--with-opencl}.
+Il paradigma della parallelizzazione tramite \textit{multi-threading} è
+selezionato se non diversamente specificato.
 
-\subsection{Parallelizzazione tramite multi-threading}
+\subsection{Parallelizzazione tramite \textit{multi-threading}}
 \label{subsec:multithreading}
 
-Per la parallelizzazione tramite multi-threading è stato scelto di utilizzare la
-libreria \textit{libpthread} che implementa il supporto per i thread POSIX al fine
-di poter sfruttare più core della CPU simultaneamente. Questa decisione è stata
-presa per questioni di massima compatibilità in quanto essa è disponibile su
-tutti i sistemi operativi UNIX-like.
+Per la parallelizzazione tramite \textit{multi-threading} è stato scelto di
+utilizzare la libreria \textit{libpthread} che implementa il supporto per i thread
+POSIX al fine di poter sfruttare più core della CPU simultaneamente. Questa
+decisione è stata presa per questioni di massima compatibilità in quanto essa è
+disponibile su tutti i sistemi operativi UNIX-like.
 
 Il primo passo è stato quello di definire come dividere il lavoro tra i thread. A
 questo scopo, si è scelto di dividere equamente il numero di elementi della RIS
@@ -180,10 +179,11 @@ dovrà eseguire, come mostrato nel listato \ref{lst:thread-routine}.
 \vspace{1em}
 
 Questa procedura è in pratica una copia delle operazioni effettuate nei cicli
-$for$ in \ref{lst:gain}, con la differenza che ogni thread lavorerà solo su una porzione
-di elementi della RIS e salverà i risultati parziali nella matrice \texttt{tmp\_phase}.
-Infine, nel listato \ref{lst:thread-creation}, si può osservare come vengono creati
-i thread, come vengono passati i parametri e come vengono attesi alla fine dell'esecuzione.
+\texttt{for} in \ref{lst:gain}, con la differenza che ogni thread lavorerà solo
+su una porzione di elementi della RIS e salverà i risultati parziali nella
+matrice \texttt{tmp\_phase}. Infine, nel listato \ref{lst:thread-creation}, si
+può osservare come vengono creati i thread, come vengono passati i parametri e come
+vengono attesi alla fine dell'esecuzione.
 
 \vspace{1em}
 \lstinputlisting[caption=Funzione del calcolo di \texttt{phase}, language=C++, label=lst:thread-creation]{listings/gain-compute-phase.cpp}
@@ -196,17 +196,18 @@ i thread, come vengono passati i parametri e come vengono attesi alla fine dell'
   \label{fig:serial-time}
 \end{figure}
 
-Si vuole portare l'attenzione sulle righe 37-41: in questo $for$ si effettua l'attesa,
-tramite la funzione \texttt{join}, e la somma dei risultati parziali di ogni
-thread nella matrice \texttt{phase}. Anche se la procedura \texttt{gsl\_matrix\_complex\_add}
-potrebbe sembrare un rallentamento, in realtà, tramite il \textit{pipelining}
-delle operazioni di creazione dei thread, questo costo è ammortizzato e non influisce
-significativamente sul tempo di esecuzione. In figura
-\ref{fig:gain-compute-phase-pipeline} è possibile osservare una rappresentazione
-grafica di questo processo: l'obiettivo è quello di assicurarsi che la procedura
-tra $t_{4}$ e $t_{5}$ sia la più breve possibile, in modo da non rallentare l'intero
-processo. In figura \ref{fig:serial-time} è possibile osservare le misurazioni di
-$t_{5}- t_{4}$, che risulta essere con un trend crescente, ma comunque contenuto.
+Si vuole portare l'attenzione sulle righe 37-41: in questo \texttt{for} si effettua
+l'attesa, tramite la funzione \texttt{pthread\_join}, e la somma dei risultati
+parziali di ogni thread nella matrice \texttt{phase}. Anche se la procedura
+\texttt{gsl\_matrix\_complex\_add} potrebbe sembrare un rallentamento, in realtà,
+tramite il \textit{pipelining} delle operazioni di creazione dei thread, questo costo
+è ammortizzato e non influisce significativamente sul tempo di esecuzione. In
+figura \ref{fig:gain-compute-phase-pipeline} è possibile osservare una
+rappresentazione grafica di questo processo tramite un esempio con 4 thread: l'obiettivo
+è quello di assicurarsi che la procedura tra $t_{4}$ e $t_{5}$ sia la più breve possibile,
+in modo da non rallentare l'intero processo. In figura \ref{fig:serial-time} è possibile
+osservare le misurazioni di $t_{5}- t_{4}$, che risulta essere con un trend
+crescente, ma comunque contenuto.
 
 \begin{figure}
   \centering
@@ -227,49 +228,51 @@ GPU sono state realizzate utilizzando le librerie \textit{CUDA}\cite{cuda} e
 e supporta solo le GPU di questo produttore, mentre la seconda è una libreria cross-platform
 sviluppata da \textit{Khronos Group} e supporta praticamente tutte le
 piattaforme disponibili. La programmazione su GPU è un approccio molto differente
-rispetto al multi-threading, data la completa differenza di architettura
-rispetto le CPU. In aggiunta le due librerie presentano delle differenze sostanziali
-che ne influenzano di molto l'implementazione, ma possiedono anche degli aspetti
-che le accomunano. Entrambe permettono di sfruttare l'architettura \textit{SIMT}
-discussa nel paragrafo \ref{para:simt}. Esse prevedono funzioni denominate \textit{kernel},
-ovvero le procedure definite per essere eseguite sul \textit{device} (GPU), le quali
-sono invocate dall'\textit{host} (CPU). La principale differenza tra le due è che
-CUDA è genera il codice \textit{kernel} in fase di compilazione, tramite il predisposto
-compilatore \texttt{nvcc}, mentre OpenCL genera il codice \textit{device} in
-fase di esecuzione poiché, essendo una libreria cross-platform, non può
-conoscere a priori il dispositivo di destinazione. Queste divergenze comportano che
-a parità di complessità del codice, \textit{CUDA} sia più performante in quanto più
-ottimizzata rispetto lo specifico target, mentre \textit{OpenCL} rimane più flessibile
-e portabile. \cite{cudavsopencl}
+rispetto al \textit{multi-threading}, data la completa differenza di architettura
+rispetto le CPU. In aggiunta le due librerie presentano delle differenze
+sostanziali che ne influenzano di molto l'implementazione, ma possiedono anche degli
+aspetti che le accomunano. Entrambe permettono di sfruttare l'architettura
+\textit{SIMT} discussa nel paragrafo \ref{para:simt}. Esse prevedono funzioni
+denominate \textit{kernel}, ovvero le procedure definite per essere eseguite sul
+\textit{device} (GPU), le quali sono invocate dall'\textit{host} (CPU). La
+principale differenza tra le due è che \textit{CUDA} genera il codice \textit{kernel}
+in fase di compilazione tramite il predisposto compilatore \texttt{nvcc}, mentre
+OpenCL genera il codice \textit{device} in fase di esecuzione poiché, essendo
+una libreria cross-platform, non può conoscere a priori il dispositivo di destinazione.
+Queste divergenze comportano che a parità di complessità del codice, \textit{CUDA}
+risulti più performante in quanto maggiormente ottimizzata rispetto allo
+specifico target, mentre \textit{OpenCL} rimane più flessibile e portabile\cite{cudavsopencl}.
 
 Il primo passo per la realizzazione è stato quello di identificare come integrare
 il codice della libreria \textit{CoopeRIS} con le librerie di programmazione su
 GPU. L'approccio scelto è stato quello di mantenere il codice della procedura \texttt{gain}
-invariato e di sostituire il calcolo della matrice \texttt{phase} tramite un kernel
+invariato e di sostituire il calcolo della matrice \texttt{phase} tramite un \textit{kernel}
 creato ad hoc.
 
 \paragraph{Implementazione tramite \textit{CUDA}}
 \label{para:cuda}
 
-Nel listato \ref{lst:cuda-kernel} è possibile osservare il codice del kernel tramite
-CUDA per il calcolo della matrice \texttt{phase} per singolo elemento della RIS
-in posizione $n, m$. Per ottimizzare al massimo le prestazioni la procedura originaria
-(righe 21-42 del listato \ref{lst:gain}) è stata semplificata algebricamente.
+Nel listato \ref{lst:cuda-kernel} è possibile osservare il codice del \textit{kernel}
+tramite \textit{CUDA} per il calcolo della matrice \texttt{phase} per singolo elemento
+della RIS in posizione $n, m$. Per ottimizzare al massimo le prestazioni la
+procedura originaria (righe 21-42 del listato \ref{lst:gain}) è stata
+semplificata algebricamente.
 
-\lstinputlisting[caption=Kernel CUDA per il calcolo di \texttt{phase}, language=C++,
-label=lst:cuda-kernel]{listings/cuda-kernel.cpp}
+\lstinputlisting[caption=\textit{Kernel} \textit{CUDA} per il calcolo di \texttt{phase},
+language=C++, label=lst:cuda-kernel]{listings/cuda-kernel.cpp}
 
 Di seguito si trova una breve descrizione della procedura:
 
 \begin{itemize}
-  \item Nella prima riga si definisce la firma del kernel, con i parametri
+  \item Nella prima riga si definisce la firma del \textit{kernel}, con i parametri
     necessari per effettuare la computazione. I puntatori \texttt{k\_du\_sin\_cos},
-    \texttt{k\_du\_sin\_sin}, \texttt{phase\_real} e \texttt{phase\_imag} sono puntatori
-    alla memoria globale del device, \texttt{n} e \texttt{m} sono gli indici
-    dell'elemento della RIS in fase di calcolo, \texttt{PHI} e \texttt{alpha} rappresentano
-    rispettivamente lo sfasamento della segnale secondo l'attuale configurazione
-    della RIS e lo sfasamento dovuto alla posizione dovuta al trasmettitore, ed
-    infine \texttt{size} è la dimensione della matrice linearizzata \texttt{phase};
+    \texttt{k\_du\_sin\_sin}, \texttt{phase\_real} e \texttt{phase\_imag} sono
+    puntatori alla memoria globale del \textit{device}, \texttt{n} e \texttt{m}
+    sono gli indici dell'elemento della RIS in fase di calcolo, \texttt{PHI} e
+    \texttt{alpha} rappresentano rispettivamente lo sfasamento della segnale secondo
+    l'attuale configurazione della RIS e lo sfasamento dovuto alla posizione dovuta
+    al trasmettitore, ed infine \texttt{size} è la dimensione della matrice linearizzata
+    \texttt{phase};
 
   \item Riga 2 rappresenta il principio fondamentale della programmazione tramite
     la tecnica \textit{SIMT}: ogni thread riceve qui dal proprio contesto l'indice
@@ -294,30 +297,31 @@ Di seguito si trova una breve descrizione della procedura:
 
 L'effettiva integrazione di questa procedura nel codice della libreria \textit{CoopeRIS}
 è stata realizzata tramite la creazione di funzioni di supporto per l'inizializzazione,
-l'allocazione, deallocazione e copia della memoria sul device e l'invocazione
-del kernel. Nel listato \ref{lst:cuda-gain} è possibile osservare la corrispettiva
-funzione di calcolo della matrice \texttt{phase} tramite \textit{CUDA}.
+l'allocazione, deallocazione e copia della memoria sul \textit{device} e l'invocazione
+del \textit{kernel}. Nel listato \ref{lst:cuda-gain} è possibile osservare la
+corrispettiva funzione di calcolo della matrice \texttt{phase} tramite \textit{CUDA}.
 
 \lstinputlisting[caption=Funzione del calcolo di \texttt{phase} tramite \textit{CUDA},
 language=C++, label=lst:cuda-gain]{listings/cuda-gain.cpp}
 
-Come si può osservare, questa procedura è molto simile rispetto quella originaria:
-la principale differenza risiede nelle allocazioni e copia della memoria dall'host
-al device e viceversa, e nell'invocazione del kernel.
+Come si può osservare, questa procedura è molto simile rispetto quella
+originaria: la principale differenza risiede nelle allocazioni e copia della memoria
+dall'\textit{host} al \textit{device} e viceversa, e nell'invocazione del
+\textit{kernel}.
 
-\paragraph{Implementazione tramite \textit{OpenCl}}
+\paragraph{Implementazione tramite \textit{OpenCL}}
 \label{para:opencl}
 
 Ciò che differenzia maggiormente l'implementazione tramite \textit{OpenCL}
-rispetto \textit{CUDA} è la necessità di compilare la funzione kernel in fase di
-esecuzione. Questo comporta che questa soluzione richieda una ulteriore
-configurazione in fase di creazione dell'istanza RIS per rispettare i vincoli
-sopracitati. Per permettere ad un utente con molteplici piattaforme supportate da
-\textit{OpenCL}, sono stati introdotti due nuovi parametri nella configurazione dell'ambiente
-di simulazione \textit{OMNeT++}: \texttt{openclPlatformId} e \texttt{openclDeviceId},
+rispetto \textit{CUDA} è la necessità di compilare la funzione \textit{kernel}
+in fase di esecuzione. Questo comporta che questa soluzione richieda una ulteriore
+configurazione in fase di creazione dell'istanza RIS per rispettare i vincoli sopracitati.
+Per permettere ad un utente con molteplici piattaforme supportate da \textit{OpenCL},
+sono stati introdotti due nuovi parametri nella configurazione dell'ambiente di
+simulazione \textit{OMNeT++}: \texttt{openclPlatformId} e \texttt{openclDeviceId},
 che consentono rispettivamente di selezionare la piattaforma e il dispositivo su
-cui esso desidera eseguire il calcolo. Per il resto, il funzionamento della
-procedura kernel e delle invocazioni alle API di \textit{OpenCL} sono concettualmente
+cui esso desidera eseguire il calcolo. Per il resto, il funzionamento della procedura
+\textit{kernel} e delle invocazioni alle API di \textit{OpenCL} sono concettualmente
 identiche a quelle di \textit{CUDA} e per questa ragione omesse in questa
 sezione.
 
@@ -334,9 +338,9 @@ sviluppo, e si valuterà l'efficacia delle stesse rispetto l'obiettivo prefissat
 
 Molti sono i vantaggi che le soluzioni proposte apportano alla libreria \textit{CoopeRIS}.
 I principali sono la riduzione del tempo di esecuzione, il supporto multi-piattaforma
-e la possibilità di sfruttare hardware dedicato. Questi aspetti sono stati i
-principali esigenze che hanno portato alla scelta di intraprendere questo
-progetto.
+e la possibilità di sfruttare hardware dedicato. Questi aspetti sono considerati
+come le principali esigenze che hanno portato alla scelta di intraprendere
+questo progetto.
 
 \paragraph{Performance e tempo di esecuzione}
 \label{para:performance}
@@ -350,7 +354,7 @@ intraprendere questo progetto, e tutte e tre le implementazioni hanno dimostrato
 di essere efficaci secondo questo criterio. La soluzione mediante \textit{CUDA} ha
 dimostrato di essere la più performante, seguita da quella tramite \textit{OpenCL}
 e infine \textit{multi-threading}. Questo risultato è in linea con le aspettative,
-e per questo motivo il progetto è stato considerato come discreto successo.
+e per questo motivo il progetto è stato considerato come un discreto successo.
 
 \paragraph{Supporto multi-piattaforma}
 \label{para:supporto}
@@ -394,20 +398,20 @@ Un ulteriore critica nei confronti di questo progetto è la necessità di hardwa
 specifico e dedicato per poter sfruttare le implementazioni ottimizzate, soprattutto
 per quanto riguarda le soluzioni tramite \textit{CUDA} e \textit{OpenCL}. Questa
 è stata la principale motivazione che ha portato alla scelta di adoperare anche
-una implementazione multi-threading, poiché è l'unica tra le tre che non richiede
-hardware aggiuntivo.
+una implementazione \textit{multi-threading}, poiché è l'unica tra le tre che
+non richiede hardware aggiuntivo.
 
 \subsection{Limiti e sfide affrontate}
 \label{subsec:limiti}
 
 Le principali sfide affrontate durante lo sviluppo di questo progetto sono state
-la complessità del codice e la necessità di costruire un'architettura modulare
-che permettesse di mantenere le tre diverse implementazioni in maniera ordinata.
-Questo ha richiesto una meticolosa progettazione e un'attenta implementazione,
-che ha richiesto molto tempo e sforzo. Un altro ostacolo è stato la necessità di
-apprendere nuove tecnologie e paradigmi di programmazione, come la
-programmazione su GPU, che ha richiesto un periodo di studio e apprendimento prima
-di poter essere implementata correttamente. Infine, l'ultimo aspetto critico è stato
-la necessità di effettuare dei test approfonditi e di profilare il codice per garantire
-la correttezza di tutte e tre le implementazione e che esse fossero effettivamente
-più performanti rispetto la soluzione originaria.
+la complessità del codice e la necessità di costruire un'architettura modulare che
+permettesse di mantenere le tre diverse implementazioni in maniera ordinata.
+Questo ha richiesto una meticolosa progettazione e un'attenta implementazione, che
+ha richiesto molto tempo e sforzo. Un altro ostacolo è stato la necessità di
+apprendere nuove tecnologie e paradigmi di programmazione, come la programmazione
+su GPU, che ha richiesto un periodo di studio e apprendimento prima di poter
+essere implementata correttamente. Infine, l'ultimo aspetto critico è stato la
+necessità di effettuare dei test approfonditi e di profilare il codice per
+garantire la correttezza di tutte e tre le implementazione e che esse fossero
+effettivamente più performanti rispetto la soluzione originaria.
