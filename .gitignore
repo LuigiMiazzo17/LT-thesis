@@ -430,7 +430,3 @@ TSWLatexianTemp*
 #
 **/build/
 **/node_modules/
-!/images/**/*.pdf
-
-# Built images
-/images/**/*.pdf
