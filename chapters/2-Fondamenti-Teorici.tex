@@ -203,7 +203,7 @@ a livello di thread. Il suo funzionamento consiste in più thread, raggruppati i
 gruppi detti \textit{warps}. Ogni thread possiede il proprio insieme di registri
 e il proprio contesto, ma condividono l'istruzione da eseguire all'interno del
 warp. In questo modo, tutti i thread del \textit{warp} eseguono la medesima istruzione,
-ma con dati diversi. Se, per l'architettura del nostro programma, non tutti i thread
+ma con dati diversi. Se per l'architettura del nostro programma non tutti i thread
 all'interno del \textit{warp} soddisfano un controllo di flusso, ad esempio in un
 branch condizionale, allora i thread che non rispettano la condizione vengono
 disattivati, mentre quelli che soddisfano la condizione continuano l'esecuzione.
