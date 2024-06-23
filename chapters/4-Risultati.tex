@@ -58,7 +58,7 @@ procedure lineari per implementare la parallelizzazione possano aver introdotto 
 percentuale di tempo di esecuzione rispetto all'implementazione originale e al numero
 di elementi della RIS. Tutti i test dimostrano una chiara superiorità delle
 soluzioni che sfruttano il calcolo parallelo, con le implementazioni su GPU che ottengono
-un tempo di esecuzione da l'$1,2\%$ all'$1,6\%$ rispetto all'implementazione originale,
+un tempo di esecuzione da l'$0,28\%$ all'$1,7\%$ rispetto all'implementazione originale,
 mentre per quella su CPU si ottengono valori che variano dal $10,2\%$ al
 $13,3\%$, perfettamente in linea con l'ideale $12,5\%$ di miglioramento atteso.
 I benchmark sono stati eseguiti su una macchina con processore \textit{Intel
@@ -175,7 +175,7 @@ delle prestazioni dei framework GPU al variare del numero di elementi RISs. La b
 al $100\%$ rappresenta il tempo di esecuzione della procedura tramite \textit{CUDA}
 allo specifico numero di elementi. Si può osservare come questa implementazione sia
 leggermente più performante rispetto a quella tramite \textit{OpenCL}, con una diminuzione
-prestazionale che varia dal $20\%$ al $37,5\%$. Inoltre, nella misurazione è stato
+prestazionale che varia dal $20\%$ al $45\%$. Inoltre, nella misurazione è stato
 volutamente omesso il tempo di inizializzazione degli oggetti \texttt{ReconfigurableIntelligentSurface},
 che in \textit{OpenCL} comprende la compilazione del \textit{kernel} della funzione
 \texttt{gain} a runtime, poiché è un'operazione che viene eseguita una sola volta
@@ -224,8 +224,8 @@ l'ausilio della RIS data la presenza dell'edificio. Gli esiti delle misurazioni,
 consultabili nelle figure \ref{fig:risultati-framework} e
 \ref{fig:risultati-framework-log} rispettivamente in scala lineare e logaritmica,
 sono completamente in linea con quelli ottenuti durante il benchmarking della libreria.
-Specificamente, si rilevano incrementi prestazionali da un minimo di $37$ volte fino
-ad un massimo di $80$ nel caso in cui la RIS possedeva il numero massimo di elementi
+Specificamente, si rilevano incrementi prestazionali da un minimo di $50$ volte fino
+ad un massimo di $97$ nel caso in cui la RIS possedeva il numero massimo di elementi
 supportati tramite parallelizzazione su GPU, e un miglioramento di circa $8$
 volte per tutte le configurazioni della RIS tramite parallelizzazione su CPU, perfettamente
 lineare con il numero di thread utilizzati considerando il tempo di inizializzazione
