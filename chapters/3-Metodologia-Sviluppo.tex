@@ -253,19 +253,21 @@ creato ad hoc.
 \label{para:cuda}
 
 Nel listato \ref{lst:cuda-kernel} è possibile osservare il codice del \textit{kernel}
-tramite \textit{CUDA} per il calcolo della matrice \texttt{phase} per singolo elemento
-della RIS in posizione $n, m$. Per ottimizzare al massimo le prestazioni la
-procedura originaria (righe 21-42 del listato \ref{lst:gain}) è stata
-semplificata algebricamente.
+definito secondo la sintassi \textit{CUDA} per il calcolo della matrice \texttt{phase}
+per singolo elemento della RIS in posizione $n, m$. Per ottimizzare al massimo
+le prestazioni la procedura originaria (righe 21-42 del listato \ref{lst:gain})
+è stata semplificata algebricamente.
 
+\vspace{1em}
 \lstinputlisting[caption=\textit{Kernel} \textit{CUDA} per il calcolo di \texttt{phase},
 language=C++, label=lst:cuda-kernel]{listings/cuda-kernel.cpp}
+\vspace{1em}
 
 Di seguito si trova una breve descrizione della procedura:
 
 \begin{itemize}
   \item Nella prima riga si definisce la firma del \textit{kernel}, con i parametri
-    necessari per effettuare la computazione. I puntatori \texttt{k\_du\_sin\_cos},
+    necessari per effettuare la computazione. Le variabili \texttt{k\_du\_sin\_cos},
     \texttt{k\_du\_sin\_sin}, \texttt{phase\_real} e \texttt{phase\_imag} sono
     puntatori alla memoria globale del \textit{device}, \texttt{n} e \texttt{m}
     sono gli indici dell'elemento della RIS in fase di calcolo, \texttt{PHI} e
@@ -276,23 +278,26 @@ Di seguito si trova una breve descrizione della procedura:
 
   \item Riga 2 rappresenta il principio fondamentale della programmazione tramite
     la tecnica \textit{SIMT}: ogni thread riceve qui dal proprio contesto l'indice
-    $i$ dell'elemento della matrice \texttt{phase} su cui dovrà lavorare;
+    $i$ dell'elemento della matrice \texttt{phase} su cui dovrà lavorare. La ragione
+    per cui è necessario ricavarlo dalla moltiplicazione di \texttt{blockIdx.x}
+    per \texttt{blockDim.x} e \texttt{threadIdx.x} è indicata nei paragrafi
+    successivi;
 
   \item Per spiegare lo scopo dell'\texttt{if} a riga 3, si deve fare riferimento
     al funzionamento della tecnica \textit{SIMT}: la creazione dei thread avviene
-    a blocchi di thread, la cui grandezza è definita all'architettura hardware
-    della GPU. Per evitare che thread non necessari eseguano operazioni inutili su
-    memoria non allocata, è necessario controllare che l'indice $i$ sia minore
-    del numero di elementi della RIS. Questo permette che la dimensione del problema
-    non sia necessariamente un multiplo della dimensione del blocchi di thread;
+    a blocchi di thread, la cui grandezza non è necessariamente un multiplo
+    della dimensione della matrice \texttt{phase}. Per evitare che thread non
+    necessari eseguano operazioni inutili su memoria non allocata, è necessario controllare
+    che l'indice \texttt{i} sia minore del numero di elementi della RIS;
 
   \item A riga 4 è computato il valore della componente che in equazione \ref{eq:power}
     è espressa da $-j(\Phi_{m,n}+\Theta_{m,n})$. Dato che $\Phi_{m,n}$ e
-    $\Theta_{m,n}$ appartengono all'insieme dei reali, in questo calcolo non è necessario
-    memorizzare la parte reale dal momento che essa è sempre pari a zero;
+    $\Theta_{m,n}$ appartengono a $\mathbb{R}$, in questo calcolo non è necessario
+    memorizzare la parte reale dal momento che essa sarà sempre pari a zero;
 
   \item Le righe 5-6 infine implementano l'esponenziazione del precedente valore
-    calcolato, come in equazione \ref{eq:power}, tramite l'equazione di Eulero.
+    calcolato, come in equazione \ref{eq:power}, tramite l'applicazione dell'equazione
+    di Eulero.
 \end{itemize}
 
 L'effettiva integrazione di questa procedura nel codice della libreria \textit{CoopeRIS}
@@ -301,13 +306,55 @@ l'allocazione, deallocazione e copia della memoria sul \textit{device} e l'invoc
 del \textit{kernel}. Nel listato \ref{lst:cuda-gain} è possibile osservare la
 corrispettiva funzione di calcolo della matrice \texttt{phase} tramite \textit{CUDA}.
 
+\vspace{1em}
 \lstinputlisting[caption=Funzione del calcolo di \texttt{phase} tramite \textit{CUDA},
 language=C++, label=lst:cuda-gain]{listings/cuda-gain.cpp}
+\vspace{1em}
 
-Come si può osservare, questa procedura è molto simile rispetto quella
-originaria: la principale differenza risiede nelle allocazioni e copia della memoria
-dall'\textit{host} al \textit{device} e viceversa, e nell'invocazione del
-\textit{kernel}.
+Come si può notare, questa procedura è molto simile rispetto quella originaria: la
+principale differenza risiede nelle allocazioni e copia della memoria dall'\textit{host}
+al \textit{device} e viceversa, e nell'invocazione di una funzione \textit{wrapper}
+che è responsabile dell'invocazione del \textit{kernel}, osservabile nel listato
+\ref{lst:cuda-kernel-wrap}.
+
+\vspace{1em}
+\lstinputlisting[caption=Funzione \textit{wrapper} per l'invocazione del \textit{kernel}
+\textit{CUDA}, language=C++, label=lst:cuda-kernel-wrap]{listings/cuda-kernel-wrap.cpp}
+\vspace{1em}
+
+In questa procedura si può notare la principale caratteristica della sintassi
+\textit{CUDA}: all'interno delle parentesi angolari \texttt{<<<num\_blocks, max\_threads\_per\_block
+>>>} si specificano rispettivamente il numero di blocchi e la quantità di thread
+invocati per blocco. Questi valori definiscono l'\textit{occupancy} del \textit{kernel},
+ovvero il rapporto tra il numero di thread attivi e il numero massimo di thread per
+blocco. Più alto è questo valore, più efficiente è l'utilizzo della GPU. Un
+blocco è un insieme di thread che condividono la stessa memoria locale e possono
+sincronizzarsi tra di loro, mentre un insieme di blocchi di thread è definito \textit{grid}.
+Il numero di blocchi è determinato dal rapporto dalla grandezza del problema per
+il numero di thread per blocco, mentre quest'ultimo è un parametro arbitrario la
+cui scelta fa parte di un processo iterativo che richiede esperienza e test
+approfonditi, ma è possibile ottenere un buon compromesso considerando i seguenti
+fattori:
+
+\begin{itemize}
+  \item È generalmente consigliabile di utilizzare un numero di thread per blocco
+    multiplo della dimensione del \textit{warp}, ovvero il numero di thread che in
+    \textit{SIMT} è eseguito in maniera sincrona, il quale nelle architetture \textit{CUDA}
+    è pari a 32;
+
+  \item Il suo valore massimo è definito dall'architettura fisica della GPU,
+    ottenibile tramite delle apposite interrogazioni alle API di \textit{CUDA};
+
+  \item Se il \textit{kernel} è computazionalmente molto pesante e richiede
+    molta memoria condivisa, è consigliabile ridurre il numero di thread per blocco
+    per evitare di saturarla;
+\end{itemize}
+
+Questa è la ragione per la quale l'indice \texttt{i}, ottenuto nel listato
+\ref{lst:cuda-kernel}, si è dovuto calcolare come \texttt{i = blockIdx.x *
+blockDim.x + threadIdx.x}, infatti \texttt{blockIdx.x} rappresenta l'indice del
+blocco corrente, \texttt{blockDim.x} il numero di thread per blocco e \texttt{threadIdx.x}
+l'indice del thread all'interno del blocco.
 
 \paragraph{Implementazione tramite \textit{OpenCL}}
 \label{para:opencl}
