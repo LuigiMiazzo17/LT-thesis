@@ -100,52 +100,51 @@ di esso corrispondano alle operazione matematiche descritte nelle equazioni
 Si può notare inoltre un layer di cache nelle righe 10-12 e 70, implementato in
 quanto permette di evitare il ricalcolo di valori già calcolati in precedenza.
 
-Considerando della Legge di Amdahl discussa nel capitolo \ref{sec:amdahl}, i due
-cicli \texttt{for} rappresentano la porzione del codice ottimale per le
-ottimizzazioni in oggetto in quanto sarà quella che meglio beneficerà della
-parallelizzazione. Inoltre, questa specifica sezione è ulteriormente vantaggiosa
-poiché tutte le iterazioni sono indipendenti tranne che per la somma finale
-nella matrice \texttt{phase}, e per questo è stato il punto di partenza per la
-progettazione delle soluzioni proposte.
+Considerando la Legge di Amdahl discussa nel capitolo \ref{sec:amdahl}, i due cicli
+\texttt{for} rappresentano la porzione del codice ottimale per le ottimizzazioni
+in oggetto, in quanto sarà quella che meglio beneficerà della parallelizzazione.
+Inoltre, questa specifica sezione è ulteriormente vantaggiosa poiché tutte le iterazioni
+sono indipendenti tranne che per la somma finale nella matrice \texttt{phase}, e
+per questo è stato il punto di partenza per la progettazione delle soluzioni proposte.
 
 \section{Implementazione delle soluzioni proposte}
 \label{sec:implementazione}
 
-Le soluzioni proposte per l'ottimizzazione del metodo \texttt{gain} sono basate
-su due approcci differenti: la parallelizzazione tramite \textit{multi-threading}
-e la parallelizzazione su GPU. Entrambe presentano piccole differenze, ma
-condividono lo stesso obiettivo: ridurre il tempo di esecuzione nel calcolo della
-matrice \texttt{phase} nei \texttt{for} annidati a righe 18-19 del codice \ref{lst:gain}
-per calcolare la matrice \texttt{phase}. Identificata la sezione del codice da ottimizzare,
-si è passati alla fase di progettazione. Per poter rendere il codice più modulare,
-e quindi per permettere agli utenti di poter scegliere l'implementazione più
-adatta al proprio hardware, ogni diversa realizzazione delle soluzioni proposte (\textit{multi-threading},
-\textit{CUDA} e \textit{OpenCL}) è stata delimitata da guardie pre-processore.
-Durante la configurazione del progetto tramite un apposito script \texttt{configure},
-tipico del sistema di compilazione di \textit{OMNeT++}, è possibile scegliere
-quale tra le tre utilizzare mediante le opzioni \texttt{--with-cuda} e \texttt{--with-opencl}.
-Il paradigma della parallelizzazione tramite \textit{multi-threading} è
-selezionato se non diversamente specificato.
+Le soluzioni proposte per l'ottimizzazione del metodo \texttt{gain} sono basate su
+due approcci differenti: la parallelizzazione tramite \textit{multi-threading} e
+la parallelizzazione su GPU. Entrambe presentano piccole differenze, ma condividono
+lo stesso obiettivo: ridurre il tempo di esecuzione nel calcolo della matrice
+\texttt{phase} nei \texttt{for} annidati a righe 18-19 del codice \ref{lst:gain}
+per calcolare la matrice \texttt{phase}. Identificata la sezione del codice da
+ottimizzare, si è passati alla fase di progettazione. Per poter rendere il
+codice più modulare, e quindi per permettere agli utenti di poter scegliere l'implementazione
+più adatta al proprio hardware, ogni diversa realizzazione delle soluzioni
+proposte (\textit{multi-threading}, \textit{CUDA} e \textit{OpenCL}) è stata
+delimitata da guardie pre-processore. Durante la configurazione del progetto tramite
+un apposito script \texttt{configure}, tipico del sistema di compilazione di \textit{OMNeT++},
+è possibile scegliere quale tra le tre utilizzare mediante le opzioni \texttt{--with-cuda}
+e \texttt{--with-opencl}. Il paradigma della parallelizzazione tramite \textit{multi-threading}
+è selezionato se non diversamente specificato.
 
 \subsection{Parallelizzazione tramite \textit{multi-threading}}
 \label{subsec:multithreading}
 
-Per la parallelizzazione tramite \textit{multi-threading} è stato scelto di
-utilizzare la libreria \textit{libpthread} che implementa il supporto per i thread
-POSIX al fine di poter sfruttare più core della CPU simultaneamente. Questa
-decisione è stata presa per questioni di massima compatibilità in quanto essa è
-disponibile su tutti i sistemi operativi UNIX-like.
+Per la parallelizzazione tramite \textit{multi-threading} è stato scelto di utilizzare
+la libreria \textit{libpthread} che implementa il supporto per i thread POSIX al
+fine di poter sfruttare più core della CPU simultaneamente. Questa decisione è stata
+presa per questioni di massima compatibilità in quanto essa è disponibile su tutti
+i sistemi operativi UNIX-like.
 
-Il primo passo è stato quello di definire come dividere il lavoro tra i thread. A
-questo scopo, si è scelto di dividere equamente il numero di elementi della RIS
-per ogni thread. Per facilitare la gestione dei parametri da passare ad ogni thread,
-la matrice di elementi RIS \texttt{coding} è linearizzata, così da poter passare
-ad ogni thread un indice \texttt{start} e \texttt{end} per la sezione di
+Il primo passo è stato quello di definire come dividere il lavoro tra i thread.
+A questo scopo, si è scelto di dividere equamente il numero di elementi della RIS
+per ogni thread. Per facilitare la gestione dei parametri da passare ad ogni
+thread, la matrice di elementi RIS \texttt{coding} è linearizzata, così da poter
+passare ad ogni thread un indice \texttt{start} e \texttt{end} per la sezione di
 elementi su cui esso dovrà lavorare. Poi, nella procedura ogni thread estrarrà i
 due indici dato l'indice $\texttt{start}\le i < \texttt{end}$ tramite le formule
-$m = \frac{i}{N}$ ed $n = i \bmod N$, dove $N$ è il numero di colonne della matrice
-\texttt{coding}. In seguito si è definita una struttura dati che contenesse i parametri
-da passare ad ogni istanza dei thread, visionabile nel listato
+$m = \frac{i}{N}$ ed $n = i \bmod N$, dove $N$ è il numero di colonne della
+matrice \texttt{coding}. In seguito si è definita una struttura dati che
+contenesse i parametri da passare ad ogni istanza dei thread, visionabile nel listato
 \ref{lst:thread-params}.
 
 \vspace{1em}
@@ -170,20 +169,20 @@ In questa struttura, sono presenti i seguenti campi:
     i propri risultati.
 \end{itemize}
 
-Dopo aver definito la struttura dati, si è definita la routine che ogni thread
-dovrà eseguire, come mostrato nel listato \ref{lst:thread-routine}.
+Dopo aver definito la struttura dati, si è definita la routine che ogni thread dovrà
+eseguire, come mostrato nel listato \ref{lst:thread-routine}.
 
 \vspace{1em}
 \lstinputlisting[caption=Procedura eseguita da ogni thread per il calcolo di
 \texttt{phase}, language=C++, label=lst:thread-routine]{listings/thread-routine.cpp}
 \vspace{1em}
 
-Questa procedura è in pratica una copia delle operazioni effettuate nei cicli
-\texttt{for} in \ref{lst:gain}, con la differenza che ogni thread lavorerà solo
-su una porzione di elementi della RIS e salverà i risultati parziali nella
-matrice \texttt{tmp\_phase}. Infine, nel listato \ref{lst:thread-creation}, si
-può osservare come vengono creati i thread, come vengono passati i parametri e come
-vengono attesi alla fine dell'esecuzione.
+Questa procedura è in pratica una copia delle operazioni effettuate nei cicli \texttt{for}
+in \ref{lst:gain}, con la differenza che ogni thread lavorerà solo su una porzione
+di elementi della RIS e salverà i risultati parziali nella matrice \texttt{tmp\_phase}.
+Infine, nel listato \ref{lst:thread-creation} è possibile osservare il processo
+di creazione dei thread, il passaggio dei parametri e l'attesa del completamento
+dell'esecuzione.
 
 \vspace{1em}
 \lstinputlisting[caption=Funzione del calcolo di \texttt{phase}, language=C++, label=lst:thread-creation]{listings/gain-compute-phase.cpp}
@@ -441,7 +440,7 @@ soprattutto nell'ottica di futuri sviluppi.
 \paragraph{Richiesta di hardware dedicato}
 \label{para:hardware}
 
-Un ulteriore critica nei confronti di questo progetto è la necessità di hardware
+Un'ulteriore critica nei confronti di questo progetto è la necessità di hardware
 specifico e dedicato per poter sfruttare le implementazioni ottimizzate, soprattutto
 per quanto riguarda le soluzioni tramite \textit{CUDA} e \textit{OpenCL}. Questa
 è stata la principale motivazione che ha portato alla scelta di adoperare anche
@@ -454,11 +453,11 @@ non richiede hardware aggiuntivo.
 Le principali sfide affrontate durante lo sviluppo di questo progetto sono state
 la complessità del codice e la necessità di costruire un'architettura modulare che
 permettesse di mantenere le tre diverse implementazioni in maniera ordinata.
-Questo ha richiesto una meticolosa progettazione e un'attenta implementazione, che
-ha richiesto molto tempo e sforzo. Un altro ostacolo è stato la necessità di
-apprendere nuove tecnologie e paradigmi di programmazione, come la programmazione
-su GPU, che ha richiesto un periodo di studio e apprendimento prima di poter
-essere implementata correttamente. Infine, l'ultimo aspetto critico è stato la
-necessità di effettuare dei test approfonditi e di profilare il codice per
+Questo ha imposto una meticolosa progettazione e un'attenta implementazione, le quali
+hanno necessitato molto tempo e sforzo. Un altro ostacolo è stata la necessità
+di apprendere nuove tecnologie e paradigmi di programmazione e parallelizzazione,
+in particolar modo per i framework su GPU, che ha richiesto un periodo non
+trascurabile di studio e apprendimento. Infine, l'ultimo aspetto critico è stato
+la necessità di effettuare dei test approfonditi e di profilare il codice per
 garantire la correttezza di tutte e tre le implementazione e che esse fossero
 effettivamente più performanti rispetto la soluzione originaria.
