@@ -100,9 +100,9 @@ di esso corrispondano alle operazione matematiche descritte nelle equazioni
 Si può notare inoltre un layer di cache nelle righe 10-12 e 70, implementato in
 quanto permette di evitare il ricalcolo di valori già calcolati in precedenza.
 
-Considerando della Legge di Amdahl discussa nel capitolo \ref{sec:amdahl}, i due
+Considerando la Legge di Amdahl discussa nel capitolo \ref{sec:amdahl}, i due
 cicli \texttt{for} rappresentano la porzione del codice ottimale per le
-ottimizzazioni in oggetto in quanto sarà quella che meglio beneficerà della
+ottimizzazioni in oggetto, in quanto sarà quella che meglio beneficerà della
 parallelizzazione. Inoltre, questa specifica sezione è ulteriormente vantaggiosa
 poiché tutte le iterazioni sono indipendenti tranne che per la somma finale
 nella matrice \texttt{phase}, e per questo è stato il punto di partenza per la
@@ -181,9 +181,9 @@ dovrà eseguire, come mostrato nel listato \ref{lst:thread-routine}.
 Questa procedura è in pratica una copia delle operazioni effettuate nei cicli
 \texttt{for} in \ref{lst:gain}, con la differenza che ogni thread lavorerà solo
 su una porzione di elementi della RIS e salverà i risultati parziali nella
-matrice \texttt{tmp\_phase}. Infine, nel listato \ref{lst:thread-creation}, si
-può osservare come vengono creati i thread, come vengono passati i parametri e come
-vengono attesi alla fine dell'esecuzione.
+matrice \texttt{tmp\_phase}. Infine, nel listato \ref{lst:thread-creation} è possibile
+osservare il processo di creazione dei thread, il passaggio dei parametri e l'attesa
+del completamento dell'esecuzione.
 
 \vspace{1em}
 \lstinputlisting[caption=Funzione del calcolo di \texttt{phase}, language=C++, label=lst:thread-creation]{listings/gain-compute-phase.cpp}
@@ -196,18 +196,18 @@ vengono attesi alla fine dell'esecuzione.
   \label{fig:serial-time}
 \end{figure}
 
-Si vuole portare l'attenzione sulle righe 37-41: in questo \texttt{for} si effettua
-l'attesa, tramite la funzione \texttt{pthread\_join}, e la somma dei risultati
-parziali di ogni thread nella matrice \texttt{phase}. Anche se la procedura
-\texttt{gsl\_matrix\_complex\_add} potrebbe sembrare un rallentamento, in realtà,
-tramite il \textit{pipelining} delle operazioni di creazione dei thread, questo costo
-è ammortizzato e non influisce significativamente sul tempo di esecuzione. In
-figura \ref{fig:gain-compute-phase-pipeline} è possibile osservare una
-rappresentazione grafica di questo processo tramite un esempio con 4 thread: l'obiettivo
-è quello di assicurarsi che la procedura tra $t_{4}$ e $t_{5}$ sia la più breve possibile,
-in modo da non rallentare l'intero processo. In figura \ref{fig:serial-time} è possibile
-osservare le misurazioni di $t_{5}- t_{4}$, che risulta essere con un trend
-crescente, ma comunque contenuto.
+Si vuole portare l'attenzione sulle righe 37-41: in questo \texttt{for} si
+effettua l'attesa, tramite la funzione \texttt{pthread\_join}, e la somma dei risultati
+parziali di ogni thread nella matrice \texttt{phase}. Anche se la procedura \texttt{gsl\_matrix\_complex\_add}
+potrebbe sembrare un rallentamento, in realtà, tramite il \textit{pipelining} delle
+operazioni di creazione dei thread, questo costo è ammortizzato e non influisce
+significativamente sul tempo di esecuzione. In figura \ref{fig:gain-compute-phase-pipeline}
+è possibile osservare una rappresentazione grafica di questo processo tramite un
+esempio con 4 thread: l'obiettivo è quello di assicurarsi che la procedura tra
+$t_{4}$ e $t_{5}$ sia la più breve possibile, in modo da non rallentare l'intero
+processo. In figura \ref{fig:serial-time} è possibile osservare le misurazioni
+di $t_{5}- t_{4}$, che risulta essere con un trend crescente, ma comunque
+contenuto.
 
 \begin{figure}
   \centering
@@ -222,41 +222,40 @@ crescente, ma comunque contenuto.
 \subsection{Parallelizzazione su GPU}
 \label{subsec:cuda}
 
-Come anticipato nel capitolo \ref{sec:contributo}, le implementazioni tramite
-GPU sono state realizzate utilizzando le librerie \textit{CUDA}\cite{cuda} e
-\textit{OpenCL}\cite{opencl}. La prima è una libreria sviluppata da \textit{NVIDIA}
-e supporta solo le GPU di questo produttore, mentre la seconda è una libreria cross-platform
-sviluppata da \textit{Khronos Group} e supporta praticamente tutte le
-piattaforme disponibili. La programmazione su GPU è un approccio molto differente
-rispetto al \textit{multi-threading}, data la completa differenza di architettura
-rispetto le CPU. In aggiunta le due librerie presentano delle differenze
-sostanziali che ne influenzano di molto l'implementazione, ma possiedono anche degli
-aspetti che le accomunano. Entrambe permettono di sfruttare l'architettura
-\textit{SIMT} discussa nel paragrafo \ref{para:simt}. Esse prevedono funzioni
-denominate \textit{kernel}, ovvero le procedure definite per essere eseguite sul
-\textit{device} (GPU), le quali sono invocate dall'\textit{host} (CPU). La
-principale differenza tra le due è che \textit{CUDA} genera il codice \textit{kernel}
-in fase di compilazione tramite il predisposto compilatore \texttt{nvcc}, mentre
-OpenCL genera il codice \textit{device} in fase di esecuzione poiché, essendo
-una libreria cross-platform, non può conoscere a priori il dispositivo di destinazione.
-Queste divergenze comportano che a parità di complessità del codice, \textit{CUDA}
-risulti più performante in quanto maggiormente ottimizzata rispetto allo
-specifico target, mentre \textit{OpenCL} rimane più flessibile e portabile\cite{cudavsopencl}.
+Come anticipato nel capitolo \ref{sec:contributo}, le implementazioni tramite GPU
+sono state realizzate utilizzando le librerie \textit{CUDA}\cite{cuda} e \textit{OpenCL}\cite{opencl}.
+La prima è una libreria sviluppata da \textit{NVIDIA} e supporta solo le GPU di questo
+produttore, mentre la seconda è una libreria cross-platform sviluppata da
+\textit{Khronos Group} e supporta praticamente tutte le piattaforme disponibili.
+La programmazione su GPU è un approccio molto differente rispetto al \textit{multi-threading},
+data la completa differenza di architettura rispetto le CPU. In aggiunta le due librerie
+presentano delle differenze sostanziali che ne influenzano di molto l'implementazione,
+ma possiedono anche degli aspetti che le accomunano. Entrambe permettono di sfruttare
+l'architettura \textit{SIMT} discussa nel paragrafo \ref{para:simt}. Esse prevedono
+funzioni denominate \textit{kernel}, ovvero le procedure definite per essere eseguite
+sul \textit{device} (GPU), le quali sono invocate dall'\textit{host} (CPU). La principale
+differenza tra le due è che \textit{CUDA} genera il codice \textit{kernel} in fase
+di compilazione tramite il predisposto compilatore \texttt{nvcc}, mentre OpenCL genera
+il codice \textit{device} in fase di esecuzione poiché, essendo una libreria cross-platform,
+non può conoscere a priori il dispositivo di destinazione. Queste divergenze comportano
+che a parità di complessità del codice, \textit{CUDA} risulti più performante in
+quanto maggiormente ottimizzata rispetto allo specifico target, mentre \textit{OpenCL}
+rimane più flessibile e portabile\cite{cudavsopencl}.
 
-Il primo passo per la realizzazione è stato quello di identificare come integrare
-il codice della libreria \textit{CoopeRIS} con le librerie di programmazione su
-GPU. L'approccio scelto è stato quello di mantenere il codice della procedura \texttt{gain}
-invariato e di sostituire il calcolo della matrice \texttt{phase} tramite un \textit{kernel}
-creato ad hoc.
+Il primo passo per la realizzazione è stato quello di identificare come
+integrare il codice della libreria \textit{CoopeRIS} con le librerie di programmazione
+su GPU. L'approccio scelto è stato quello di mantenere il codice della procedura
+\texttt{gain} invariato e di sostituire il calcolo della matrice \texttt{phase}
+tramite un \textit{kernel} creato ad hoc.
 
 \paragraph{Implementazione tramite \textit{CUDA}}
 \label{para:cuda}
 
 Nel listato \ref{lst:cuda-kernel} è possibile osservare il codice del \textit{kernel}
 definito secondo la sintassi \textit{CUDA} per il calcolo della matrice \texttt{phase}
-per singolo elemento della RIS in posizione $n, m$. Per ottimizzare al massimo
-le prestazioni la procedura originaria (righe 21-42 del listato \ref{lst:gain})
-è stata semplificata algebricamente.
+per singolo elemento della RIS in posizione $n, m$. Per ottimizzare al massimo le
+prestazioni la procedura originaria (righe 21-42 del listato \ref{lst:gain}) è stata
+semplificata algebricamente.
 
 \vspace{1em}
 \lstinputlisting[caption=\textit{Kernel} \textit{CUDA} per il calcolo di \texttt{phase},
@@ -303,16 +302,16 @@ Di seguito si trova una breve descrizione della procedura:
 L'effettiva integrazione di questa procedura nel codice della libreria \textit{CoopeRIS}
 è stata realizzata tramite la creazione di funzioni di supporto per l'inizializzazione,
 l'allocazione, deallocazione e copia della memoria sul \textit{device} e l'invocazione
-del \textit{kernel}. Nel listato \ref{lst:cuda-gain} è possibile osservare la
-corrispettiva funzione di calcolo della matrice \texttt{phase} tramite \textit{CUDA}.
+del \textit{kernel}. Nel listato \ref{lst:cuda-gain} è possibile osservare la corrispettiva
+funzione di calcolo della matrice \texttt{phase} tramite \textit{CUDA}.
 
 \vspace{1em}
 \lstinputlisting[caption=Funzione del calcolo di \texttt{phase} tramite \textit{CUDA},
 language=C++, label=lst:cuda-gain]{listings/cuda-gain.cpp}
 \vspace{1em}
 
-Come si può notare, questa procedura è molto simile rispetto quella originaria: la
-principale differenza risiede nelle allocazioni e copia della memoria dall'\textit{host}
+Come si può notare, questa procedura è molto simile rispetto quella originaria:
+la principale differenza risiede nelle allocazioni e copia della memoria dall'\textit{host}
 al \textit{device} e viceversa, e nell'invocazione di una funzione \textit{wrapper}
 che è responsabile dell'invocazione del \textit{kernel}, osservabile nel listato
 \ref{lst:cuda-kernel-wrap}.
@@ -322,19 +321,18 @@ che è responsabile dell'invocazione del \textit{kernel}, osservabile nel listat
 \textit{CUDA}, language=C++, label=lst:cuda-kernel-wrap]{listings/cuda-kernel-wrap.cpp}
 \vspace{1em}
 
-In questa procedura si può notare la principale caratteristica della sintassi
-\textit{CUDA}: all'interno delle parentesi angolari \texttt{<<<num\_blocks, max\_threads\_per\_block
+In questa procedura si può notare la principale caratteristica della sintassi \textit{CUDA}:
+all'interno delle parentesi angolari \texttt{<<<num\_blocks, max\_threads\_per\_block
 >>>} si specificano rispettivamente il numero di blocchi e la quantità di thread
 invocati per blocco. Questi valori definiscono l'\textit{occupancy} del \textit{kernel},
-ovvero il rapporto tra il numero di thread attivi e il numero massimo di thread per
-blocco. Più alto è questo valore, più efficiente è l'utilizzo della GPU. Un
-blocco è un insieme di thread che condividono la stessa memoria locale e possono
-sincronizzarsi tra di loro, mentre un insieme di blocchi di thread è definito \textit{grid}.
-Il numero di blocchi è determinato dal rapporto dalla grandezza del problema per
-il numero di thread per blocco, mentre quest'ultimo è un parametro arbitrario la
-cui scelta fa parte di un processo iterativo che richiede esperienza e test
-approfonditi, ma è possibile ottenere un buon compromesso considerando i seguenti
-fattori:
+ovvero il rapporto tra il numero di thread attivi e il numero massimo di thread
+per blocco. Più alto è questo valore, più efficiente è l'utilizzo della GPU. Un blocco
+è un insieme di thread che condividono la stessa memoria locale e possono sincronizzarsi
+tra di loro, mentre un insieme di blocchi di thread è definito \textit{grid}. Il
+numero di blocchi è determinato dal rapporto dalla grandezza del problema per il
+numero di thread per blocco, mentre quest'ultimo è un parametro arbitrario la cui
+scelta fa parte di un processo iterativo che richiede esperienza e test approfonditi,
+ma è possibile ottenere un buon compromesso considerando i seguenti fattori:
 
 \begin{itemize}
   \item È generalmente consigliabile di utilizzare un numero di thread per blocco
@@ -350,35 +348,36 @@ fattori:
     per evitare di saturarla;
 \end{itemize}
 
-Questa è la ragione per la quale l'indice \texttt{i}, ottenuto nel listato
-\ref{lst:cuda-kernel}, si è dovuto calcolare come \texttt{i = blockIdx.x *
-blockDim.x + threadIdx.x}, infatti \texttt{blockIdx.x} rappresenta l'indice del
-blocco corrente, \texttt{blockDim.x} il numero di thread per blocco e \texttt{threadIdx.x}
-l'indice del thread all'interno del blocco.
+Questa è la ragione per la quale l'indice \texttt{i}, ottenuto nel listato \ref{lst:cuda-kernel},
+si è dovuto calcolare come \texttt{i = blockIdx.x * blockDim.x + threadIdx.x},
+infatti \texttt{blockIdx.x} rappresenta l'indice del blocco corrente, \texttt{blockDim.x}
+il numero di thread per blocco e \texttt{threadIdx.x} l'indice del thread all'interno
+del blocco.
 
 \paragraph{Implementazione tramite \textit{OpenCL}}
 \label{para:opencl}
 
-Ciò che differenzia maggiormente l'implementazione tramite \textit{OpenCL}
-rispetto \textit{CUDA} è la necessità di compilare la funzione \textit{kernel}
-in fase di esecuzione. Questo comporta che questa soluzione richieda una ulteriore
-configurazione in fase di creazione dell'istanza RIS per rispettare i vincoli sopracitati.
-Per permettere ad un utente con molteplici piattaforme supportate da \textit{OpenCL},
-sono stati introdotti due nuovi parametri nella configurazione dell'ambiente di
-simulazione \textit{OMNeT++}: \texttt{openclPlatformId} e \texttt{openclDeviceId},
+Ciò che differenzia maggiormente l'implementazione tramite \textit{OpenCL} rispetto
+\textit{CUDA} è la necessità di compilare la funzione \textit{kernel} in fase di
+esecuzione. Questo comporta che questa soluzione richieda una ulteriore
+configurazione in fase di creazione dell'istanza RIS per rispettare i vincoli
+sopracitati. Per permettere ad un utente con molteplici piattaforme supportate da
+\textit{OpenCL}, sono stati introdotti due nuovi parametri nella configurazione dell'ambiente
+di simulazione \textit{OMNeT++}: \texttt{openclPlatformId} e \texttt{openclDeviceId},
 che consentono rispettivamente di selezionare la piattaforma e il dispositivo su
-cui esso desidera eseguire il calcolo. Per il resto, il funzionamento della procedura
-\textit{kernel} e delle invocazioni alle API di \textit{OpenCL} sono concettualmente
-identiche a quelle di \textit{CUDA} e per questa ragione omesse in questa
-sezione.
+cui esso desidera eseguire il calcolo. Per il resto, il funzionamento della
+procedura \textit{kernel} e delle invocazioni alle API di \textit{OpenCL} sono
+concettualmente identiche a quelle di \textit{CUDA} e per questa ragione omesse in
+questa sezione.
 
 \section{Discussione e Valutazione}
 \label{ch:discussione}
 
-In questo capitolo si vuole portare un analisi qualitativa delle soluzioni proposte
-per l'ottimizzazione della libreria \textit{CoopeRIS}. Si discuteranno i vantaggi
-e gli svantaggi di ciascuna soluzione, i limiti e le sfide affrontate durante lo
-sviluppo, e si valuterà l'efficacia delle stesse rispetto l'obiettivo prefissato.
+In questo capitolo si vuole portare un analisi qualitativa delle soluzioni
+proposte per l'ottimizzazione della libreria \textit{CoopeRIS}. Si discuteranno
+i vantaggi e gli svantaggi di ciascuna soluzione, i limiti e le sfide affrontate
+durante lo sviluppo, e si valuterà l'efficacia delle stesse rispetto l'obiettivo
+prefissato.
 
 \subsection{Vantaggi delle soluzioni implementate}
 \label{subsec:vantaggi}
@@ -386,79 +385,79 @@ sviluppo, e si valuterà l'efficacia delle stesse rispetto l'obiettivo prefissat
 Molti sono i vantaggi che le soluzioni proposte apportano alla libreria \textit{CoopeRIS}.
 I principali sono la riduzione del tempo di esecuzione, il supporto multi-piattaforma
 e la possibilità di sfruttare hardware dedicato. Questi aspetti sono considerati
-come le principali esigenze che hanno portato alla scelta di intraprendere
-questo progetto.
+come le principali esigenze che hanno portato alla scelta di intraprendere questo
+progetto.
 
 \paragraph{Performance e tempo di esecuzione}
 \label{para:performance}
 
-Il primo e più importante beneficio del calcolo parallelo è la riduzione del
-tempo di esecuzione. Questo è stato confermato dai risultati ottenuti durante le
-fasi di \textit{benchmarking} della libreria stessa oltreché nel framework di
-simulazione completo, discussi nel dettaglio nel capitolo \ref{ch:risultati}. Il
-risparmio di tempo di esecuzione è il motivo principale per cui si è scelto di
-intraprendere questo progetto, e tutte e tre le implementazioni hanno dimostrato
-di essere efficaci secondo questo criterio. La soluzione mediante \textit{CUDA} ha
-dimostrato di essere la più performante, seguita da quella tramite \textit{OpenCL}
-e infine \textit{multi-threading}. Questo risultato è in linea con le aspettative,
-e per questo motivo il progetto è stato considerato come un discreto successo.
+Il primo e più importante beneficio del calcolo parallelo è la riduzione del tempo
+di esecuzione. Questo è stato confermato dai risultati ottenuti durante le fasi
+di \textit{benchmarking} della libreria stessa oltreché nel framework di simulazione
+completo, discussi nel dettaglio nel capitolo \ref{ch:risultati}. Il risparmio di
+tempo di esecuzione è il motivo principale per cui si è scelto di intraprendere questo
+progetto, e tutte e tre le implementazioni hanno dimostrato di essere efficaci
+secondo questo criterio. La soluzione mediante \textit{CUDA} ha dimostrato di
+essere la più performante, seguita da quella tramite \textit{OpenCL} e infine
+\textit{multi-threading}. Questo risultato è in linea con le aspettative, e per questo
+motivo il progetto è stato considerato come un discreto successo.
 
 \paragraph{Supporto multi-piattaforma}
 \label{para:supporto}
 
 Un ulteriore vantaggio significativo, soprattutto in riferimento all'adozione di
-\textit{OpenCL} come soluzione, risiede nella capacità di impiegare la libreria su
-una vasta gamma di piattaforme diverse. Tale caratteristica rappresenta un
-elemento di primaria importanza per garantire la massima compatibilità e
-portabilità del codice, consentendo di svincolare l'utente dal fenomeno del \textit{vendor
-lock-in}. Questo problema è frequentemente riscontrato nell'utilizzo di soluzioni
-proprietarie come \textit{CUDA}. La possibilità di mantenere l'indipendenza dal fornitore
-specifico di hardware o software conferisce un valore aggiunto notevole,
-promuovendo un ecosistema di sviluppo più aperto e flessibile.
+\textit{OpenCL} come soluzione, risiede nella capacità di impiegare la libreria
+su una vasta gamma di piattaforme diverse. Tale caratteristica rappresenta un elemento
+di primaria importanza per garantire la massima compatibilità e portabilità del codice,
+consentendo di svincolare l'utente dal fenomeno del \textit{vendor lock-in}.
+Questo problema è frequentemente riscontrato nell'utilizzo di soluzioni
+proprietarie come \textit{CUDA}. La possibilità di mantenere l'indipendenza dal
+fornitore specifico di hardware o software conferisce un valore aggiunto
+notevole, promuovendo un ecosistema di sviluppo più aperto e flessibile.
 
 \subsection{Svantaggi delle soluzioni implementate}
 \label{sec:svantaggi}
 
-Nonostante i vantaggi, le soluzioni proposte presentano anche degli svantaggi
-che ne limitano l'utilizzo e l'efficacia. Principalmente, si possono
-identificare la leggibilità e manutenibilità del codice e la richiesta di
-hardware dedicato. Importante è anche considerare che le soluzioni proposte non sono
-state progettate per essere utilizzate in maniera combinata, ma piuttosto come
-alternative tra cui l'utente può scegliere in base alle proprie esigenze, e per questo
+Nonostante i vantaggi, le soluzioni proposte presentano anche degli svantaggi che
+ne limitano l'utilizzo e l'efficacia. Principalmente, si possono identificare la
+leggibilità e manutenibilità del codice e la richiesta di hardware dedicato.
+Importante è anche considerare che le soluzioni proposte non sono state
+progettate per essere utilizzate in maniera combinata, ma piuttosto come alternative
+tra cui l'utente può scegliere in base alle proprie esigenze, e per questo
 motivo il beneficio rispetto lo sforzo richiesto è limitato.
 
 \paragraph{Leggibilità e manutenibilità del codice}
 \label{para:leggibilita}
 
 Un aspetto negativo di questo progetto è la complessità aggiunta al codice della
-libreria \textit{CoopeRIS}, soprattutto derivante dalla necessità di mantenere tre
-diverse implementazioni per la stessa funzionalità, scritte secondo tre diversi
+libreria \textit{CoopeRIS}, soprattutto derivante dalla necessità di mantenere
+tre diverse implementazioni per la stessa funzionalità, scritte secondo tre diversi
 paradigmi e convenzioni. Questo rende di molto più difficile la comprensione del
 codice, specialmente per utenti non confidenti con la programmazione parallela o
-i framework di calcolo su GPU. Questo rappresenta un ostacolo non indifferente,
-soprattutto nell'ottica di futuri sviluppi.
+i framework di calcolo su GPU. Questo rappresenta un ostacolo non indifferente, soprattutto
+nell'ottica di futuri sviluppi.
 
 \paragraph{Richiesta di hardware dedicato}
 \label{para:hardware}
 
-Un ulteriore critica nei confronti di questo progetto è la necessità di hardware
-specifico e dedicato per poter sfruttare le implementazioni ottimizzate, soprattutto
-per quanto riguarda le soluzioni tramite \textit{CUDA} e \textit{OpenCL}. Questa
-è stata la principale motivazione che ha portato alla scelta di adoperare anche
-una implementazione \textit{multi-threading}, poiché è l'unica tra le tre che
+Un'ulteriore critica nei confronti di questo progetto è la necessità di hardware
+specifico e dedicato per poter sfruttare le implementazioni ottimizzate,
+soprattutto per quanto riguarda le soluzioni tramite \textit{CUDA} e \textit{OpenCL}.
+Questa è stata la principale motivazione che ha portato alla scelta di adoperare
+anche una implementazione \textit{multi-threading}, poiché è l'unica tra le tre che
 non richiede hardware aggiuntivo.
 
 \subsection{Limiti e sfide affrontate}
 \label{subsec:limiti}
 
 Le principali sfide affrontate durante lo sviluppo di questo progetto sono state
-la complessità del codice e la necessità di costruire un'architettura modulare che
-permettesse di mantenere le tre diverse implementazioni in maniera ordinata.
-Questo ha richiesto una meticolosa progettazione e un'attenta implementazione, che
-ha richiesto molto tempo e sforzo. Un altro ostacolo è stato la necessità di
-apprendere nuove tecnologie e paradigmi di programmazione, come la programmazione
-su GPU, che ha richiesto un periodo di studio e apprendimento prima di poter
-essere implementata correttamente. Infine, l'ultimo aspetto critico è stato la
-necessità di effettuare dei test approfonditi e di profilare il codice per
-garantire la correttezza di tutte e tre le implementazione e che esse fossero
-effettivamente più performanti rispetto la soluzione originaria.
+la complessità del codice e la necessità di costruire un'architettura modulare
+che permettesse di mantenere le tre diverse implementazioni in maniera ordinata.
+Questo ha imposto una meticolosa progettazione e un'attenta implementazione, le
+quali hanno necessitato molto tempo e sforzo. Un altro ostacolo è stata la necessità
+di apprendere nuove tecnologie e paradigmi di programmazione e parallelizzazione,
+in particolar modo per i framework su GPU, che ha richiesto un periodo non trascurabile
+di studio e apprendimento. Infine, l'ultimo aspetto critico è stato la necessità
+di effettuare dei test approfonditi e di profilare il codice per garantire la correttezza
+di tutte e tre le implementazione e che esse fossero effettivamente più performanti
+rispetto la soluzione originaria.
