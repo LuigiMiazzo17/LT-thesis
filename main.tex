@@ -1,4 +1,4 @@
-\documentclass[a4paper, 11pt, titlepage, twoside, openany]{book}
+\documentclass[a4paper, 11pt, titlepage, twoside, openright]{book}
 \usepackage{plain}
 \usepackage{setspace}
 % Layout
@@ -91,7 +91,7 @@ showtabs=false, tabsize=2 }
   % Cover
   \pagenumbering{gobble}
   \input{etc/cover}
-  \clearpage
+  \cleardoublepage
 
   % Acknowledgements
   \input{etc/acknowledgements}
@@ -133,6 +133,7 @@ showtabs=false, tabsize=2 }
   \endgroup
 
   % Bibliography
+  \cleardoublepage
   \addcontentsline{toc}{chapter}{Bibliografia}
   % Alphabetical order of authors
   \bibliographystyle{plain}
